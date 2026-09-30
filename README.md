@@ -74,7 +74,7 @@ Each run archives a Release build with a timestamp build number and uploads it. 
 
 ## Subscription (gastos Premium)
 
-gastos is pay-to-use: ₱99/month as an auto-renewing App Store subscription. After onboarding, `ContentGate` shows `PaywallView` until `Subscription` (StoreKit 2, `gastos/Services/Subscription.swift`) finds an active, Apple-signed transaction. It works offline and has no server check. The offer code **GASTOS** gives the first month free.
+gastos is pay-to-use: ₱99/month as an auto-renewing App Store subscription, with Family Sharing on (one subscription covers the family; this can't be turned off in App Store Connect). After onboarding, `ContentGate` shows `PaywallView` until `Subscription` (StoreKit 2, `gastos/Services/Subscription.swift`) finds an active, Apple-signed transaction. It works offline and has no server check. The offer code **GASTOS** gives the first month free.
 
 - **Debug builds** skip the paywall unless launched with `-paywall`. This keeps development usable before the product exists in App Store Connect. **Release builds always require the subscription.**
 - **Local testing:** the scheme uses `gastosTests/Products.storekit` (₱99/month in the Philippine storefront, plus the GASTOS code). Run with `-paywall` to try buying in the simulator. `PaywallUITests` buys the subscription through this test store and checks that the app unlocks.

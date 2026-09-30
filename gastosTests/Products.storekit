@@ -31,7 +31,7 @@
             }
           ],
           "displayPrice": "99.00",
-          "familyShareable": false,
+          "familyShareable": true,
           "groupNumber": 1,
           "internalID": "6700000002",
           "introductoryOffer": null,
