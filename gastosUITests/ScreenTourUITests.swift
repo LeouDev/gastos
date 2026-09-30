@@ -24,7 +24,7 @@ final class ScreenTourUITests: XCTestCase {
         tab("Transactions"); shot("03 Transactions")
 
         tab("Wallets"); shot("04 Wallets")
-        app.buttons.matching(NSPredicate(format: "label CONTAINS 'GCash'")).firstMatch.tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'GCash card'")).firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
         shot("05 Wallet detail")
         app.buttons["Edit"].tap()
         app.buttons["Card Style"].tap(); shot("06 Card style")

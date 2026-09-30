@@ -100,6 +100,8 @@ struct WalletCardView: View {
         .frame(height: 216)
         .background { CardBackground(skin: skin, photo: photo) }
         .clipShape(.rect(cornerRadius: 22, style: .continuous))
+        // Only the visible card takes taps (a filled photo can extend past the rounded edge).
+        .contentShape(.rect(cornerRadius: 22, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: 1))
         .shadow(color: .black.opacity(0.35), radius: 14, y: 10)
         .accessibilityElement(children: .ignore)
@@ -132,6 +134,10 @@ struct CardBackground: View {
     var plain = false
 
     var body: some View {
+        surface.allowsHitTesting(false)
+    }
+
+    @ViewBuilder private var surface: some View {
         switch skin {
         case .texture(let texture):
             Canvas { context, size in draw(texture, in: &context, size: size) }
@@ -150,7 +156,8 @@ struct CardBackground: View {
             ZStack {
                 Color(rgb: 0x3A3532)
                 if let photo, let image = UIImage(data: photo) {
-                    Image(uiImage: image).resizable().scaledToFill()
+                    // Fill the card without letting the photo grow its frame.
+                    Color.clear.overlay { Image(uiImage: image).resizable().scaledToFill() }.clipped()
                 }
                 if !plain {
                     // Keeps white text readable on any photo.

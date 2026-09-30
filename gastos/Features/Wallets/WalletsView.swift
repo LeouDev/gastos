@@ -12,6 +12,10 @@ struct WalletsView: View {
     @State private var showHidden = false
     /// How far the list is pulled down past the top; spreads the cards.
     @State private var pull: CGFloat = 0
+    /// Scrolled past the top; fades cards out under the status bar and title.
+    @State private var scrolled = false
+    /// The card a dragged card is hovering over.
+    @State private var dropTarget: UUID?
     @Namespace private var cards
 
     /// How much of each card peeks out above the next.
@@ -99,8 +103,24 @@ struct WalletsView: View {
                 -(geometry.contentOffset.y + geometry.contentInsets.top)
             } action: { _, overscroll in
                 pull = max(0, overscroll)
+                if scrolled != (overscroll < -8) { withAnimation(.easeOut(duration: 0.2)) { scrolled = overscroll < -8 } }
+            }
+            // Clear top bar: no tinted band. Cards fade out as they reach the top instead,
+            // so the clock and title stay readable over photos.
+            .mask {
+                VStack(spacing: 0) {
+                    let top = Color.black.opacity(scrolled ? 0 : 1)
+                    LinearGradient(stops: [.init(color: top, location: 0), .init(color: top, location: 0.5),
+                                           .init(color: .black, location: 1)],
+                                   startPoint: .top, endPoint: .bottom)
+                        .frame(height: 170)
+                    Color.black
+                }
+                .ignoresSafeArea()
             }
             .canvasBackground()
+            .toolbarBackgroundVisibility(.hidden, for: .navigationBar)
+            .scrollEdgeEffectHidden(true, for: .top)
             .navigationTitle("Wallets")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -131,6 +151,10 @@ struct WalletsView: View {
         var id: UUID {
             switch self { case .wallet(let a): a.id; case .pass(let p): p.id }
         }
+        /// What a drag carries; the prefix keeps wallets and passes in their own stacks.
+        var dragID: String {
+            switch self { case .wallet(let a): "wallet:" + a.id.uuidString; case .pass(let p): "pass:" + p.id.uuidString }
+        }
     }
 
     /// The other cards' looks, for the pile at the bottom of a card's screen.
@@ -154,10 +178,38 @@ struct WalletsView: View {
                 }
                 .buttonStyle(.plain)
                 .matchedTransitionSource(id: item.id, in: cards)
-                .offset(y: CGFloat(index) * gap)
+                // Long-press a card and drag it onto another to put it there.
+                .draggable(item.dragID)
+                .dropDestination(for: String.self) { dropped, _ in
+                    guard let from = dropped.first else { return false }
+                    return move(from, onto: item, in: items)
+                } isTargeted: { over in
+                    dropTarget = over ? item.id : (dropTarget == item.id ? nil : dropTarget)
+                }
+                .offset(y: CGFloat(index) * gap + (dropTarget == item.id ? 14 : 0))
+                .animation(.snappy, value: dropTarget)
             }
         }
         .frame(height: 216 + CGFloat(max(items.count - 1, 0)) * peek, alignment: .top)
+    }
+
+    /// Moves the dragged card to the target's place in the same stack (wallets with wallets, passes with passes).
+    private func move(_ dragID: String, onto target: StackItem, in items: [StackItem]) -> Bool {
+        guard let from = items.firstIndex(where: { $0.dragID == dragID }),
+              let to = items.firstIndex(where: { $0.id == target.id }), from != to else { return false }
+        var ordered = items
+        ordered.insert(ordered.remove(at: from), at: to)
+        withAnimation(.snappy) {
+            for (index, item) in ordered.enumerated() {
+                switch item {
+                case .wallet(let account): account.sortOrder = index
+                case .pass(let pass): pass.sortOrder = index
+                }
+            }
+        }
+        dropTarget = nil
+        Haptics.success()
+        return true
     }
 }
 

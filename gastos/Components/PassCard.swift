@@ -51,6 +51,8 @@ struct PassCardView: View {
         .frame(height: 216)
         .background { CardBackground(skin: skin, photo: photo, plain: !showsText) }
         .clipShape(.rect(cornerRadius: 22, style: .continuous))
+        // Only the visible card takes taps (a filled photo can extend past the rounded edge).
+        .contentShape(.rect(cornerRadius: 22, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: 1))
         .shadow(color: .black.opacity(0.35), radius: 14, y: 10)
         .accessibilityElement(children: .ignore)
