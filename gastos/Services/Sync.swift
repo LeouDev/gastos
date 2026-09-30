@@ -291,14 +291,15 @@ protocol SyncRecord: Codable {
 private func money(_ text: String) -> Decimal { Decimal(string: text) ?? 0 }
 
 struct AccountRecord: SyncRecord {
-    static let columns = "id,name,type,opening_balance::text,currency,icon,color_hex,is_active,sort_order,created_at,updated_at,deleted"
+    static let columns = "id,name,type,opening_balance::text,currency,icon,color_hex,is_active,sort_order,card_skin,card_emblem,created_at,updated_at,deleted"
     var id: UUID, name: String, type: String, opening_balance: String, currency: String, icon: String
-    var color_hex: String, is_active: Bool, sort_order: Int, created_at: Date, deleted = false
+    var color_hex: String, is_active: Bool, sort_order: Int, card_skin: String, card_emblem: String, created_at: Date, deleted = false
     var updated_at: Date?
 
     init(_ a: Account) {
         (id, name, type, opening_balance, currency, icon) = (a.id, a.name, a.typeRaw, "\(a.openingBalance)", a.currency, a.icon)
         (color_hex, is_active, sort_order, created_at) = (a.colorHex, a.isActive, a.sortOrder, a.createdAt)
+        (card_skin, card_emblem) = (a.cardSkin, a.cardEmblem)
     }
 
     static func make(_ id: UUID) -> Account {
@@ -310,6 +311,9 @@ struct AccountRecord: SyncRecord {
     func apply(to a: Account) {
         (a.name, a.typeRaw, a.openingBalance, a.currency, a.icon) = (name, type, money(opening_balance), currency, icon)
         (a.colorHex, a.isActive, a.sortOrder, a.createdAt) = (color_hex, is_active, sort_order, created_at)
+        // A photo skin can't show without the photo, which never leaves the device it was picked on.
+        a.cardSkin = card_skin == "photo" && a.cardPhoto == nil ? "" : card_skin
+        a.cardEmblem = card_emblem
     }
 }
 

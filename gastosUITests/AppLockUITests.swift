@@ -17,6 +17,7 @@ final class AppLockUITests: XCTestCase {
 
         app.buttons["Settings"].tap()
         let lock = app.switches.matching(NSPredicate(format: "label BEGINSWITH 'Lock gastos'")).firstMatch
+        for _ in 0..<4 where !lock.exists { app.swipeUp() }
         XCTAssertTrue(lock.waitForExistence(timeout: 5))
         lock.switches.firstMatch.tap()
 

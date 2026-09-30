@@ -3,8 +3,24 @@ import SwiftUI
 // MARK: - Environment
 
 extension EnvironmentValues {
-    /// Opens the add-transaction sheet from anywhere. `nil` shows the "What happened?" chooser.
-    @Entry var addEntry: (EntryType?) -> Void = { _ in }
+    /// Opens the add-transaction sheet from anywhere. `addEntry(nil)` shows the "What happened?" chooser.
+    @Entry var addEntry = AddEntryAction { _ in }
+}
+
+struct AddRequest: Identifiable {
+    let id = UUID()
+    var type: EntryType?
+    /// Preselected "paid with / received in / from" wallet.
+    var account: Account?
+    /// Preselected transfer destination.
+    var toAccount: Account?
+}
+
+struct AddEntryAction {
+    let open: (AddRequest) -> Void
+    func callAsFunction(_ type: EntryType?, from account: Account? = nil, to toAccount: Account? = nil) {
+        open(AddRequest(type: type, account: account, toAccount: toAccount))
+    }
 }
 
 // MARK: - Layout

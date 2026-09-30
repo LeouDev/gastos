@@ -22,6 +22,9 @@ enum SettingsKey {
     static let showSafeToSpend = "showSafeToSpend"
     static let hasOnboarded = "hasOnboarded"
     static let lastAccountID = "lastAccountID"
+    static let appearance = "appearance"
+    static let homeCardSkin = "homeCardSkin"
+    static let showBalanceOnCards = "showBalanceOnCards"
 }
 
 enum Store {
@@ -44,8 +47,8 @@ enum Store {
 extension Color {
     /// Inspired by the red on the gastos sphere.
     static let brand = Color(light: 0xD8141A, dark: 0xFF4543)
-    static let canvas = Color(light: 0xFAF7F2, dark: 0x161413)
-    static let card = Color(light: 0xFFFFFF, dark: 0x252220)
+    static let canvas = Color(light: 0xFAF7F2, dark: 0x0B0A0A)
+    static let card = Color(light: 0xFFFFFF, dark: 0x1A1716)
     static let ink = Color(light: 0x1C1A19, dark: 0xF5F2EE)
     static let muted = Color(light: 0x8A847E, dark: 0x9E9892)
     static let track = Color(light: 0xF0EBE4, dark: 0x34302D)

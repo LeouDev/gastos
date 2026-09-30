@@ -6,8 +6,11 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.currency) private var currency = "PHP"
     @AppStorage(SettingsKey.appLock) private var appLock = false
     @AppStorage(SettingsKey.showSafeToSpend) private var showSafeToSpend = true
+    @AppStorage(SettingsKey.appearance) private var appearance = "dark"
+    @AppStorage(SettingsKey.showBalanceOnCards) private var showBalanceOnCards = true
     @State private var lockUnavailable = false
     @State private var confirmingDelete = false
+    @State private var customizingHomeCard = false
     @Environment(\.colorScheme) private var colorScheme
     private var sync: SyncService { .shared }
 
@@ -22,6 +25,16 @@ struct SettingsView: View {
                 Text("Money")
             } footer: {
                 Text("Totals use wallets in your main currency. “You can spend” is your total money, minus recurring bills still due, divided by the days until your next recurring income — or until the end of the month if you haven't set one.")
+            }
+
+            Section("Look") {
+                Picker("Appearance", selection: $appearance) {
+                    Text("Dark").tag("dark")
+                    Text("Light").tag("light")
+                    Text("Match iPhone").tag("system")
+                }
+                Toggle("Show balances on cards", isOn: $showBalanceOnCards)
+                Button("Home card style") { customizingHomeCard = true }
             }
 
             Section("Organize") {
@@ -90,6 +103,7 @@ struct SettingsView: View {
         .tint(.brand)
         .canvasBackground()
         .navigationTitle("Settings")
+        .sheet(isPresented: $customizingHomeCard) { CardCustomizeView(account: nil) }
         .confirmationDialog("Delete your gastos account?", isPresented: $confirmingDelete, titleVisibility: .visible) {
             Button("Delete Account", role: .destructive) { Task { await sync.deleteAccount() } }
         } message: {

@@ -453,3 +453,21 @@ struct AmountParsingTests {
         #expect(parseAmount("abc") == nil)
     }
 }
+
+struct CardSkinTests {
+    @Test func skinsRoundTripThroughTheirStoredString() {
+        for skin in [CardSkin.texture(.ember), .texture(.linen), .color("1E9E5A"), .photo] {
+            #expect(CardSkin(raw: skin.raw, fallbackHex: "000000") == skin)
+        }
+        // Empty or unknown falls back to the wallet's own color.
+        #expect(CardSkin(raw: "", fallbackHex: "2F6FEB") == .color("2F6FEB"))
+        #expect(CardSkin(raw: "sparkles", fallbackHex: "2F6FEB") == .color("2F6FEB"))
+    }
+
+    @Test func textPicksAReadableColor() {
+        #expect(CardSkin.isLight("F3EFE9"))
+        #expect(CardSkin.isLight("F4B400"))
+        #expect(!CardSkin.isLight("D8141A"))
+        #expect(!CardSkin.isLight("1C1A19"))
+    }
+}

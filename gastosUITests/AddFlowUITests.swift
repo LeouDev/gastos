@@ -17,7 +17,7 @@ final class AddFlowUITests: XCTestCase {
         XCTAssertTrue(element(containing: "Total money", "5,000").waitForExistence(timeout: 5))
 
         app.buttons["Add"].firstMatch.tap()
-        app.buttons["Expense"].tap()
+        app.buttons["choose.expense"].tap()
         app.textFields["Amount"].typeText("350")
         app.buttons["Food"].tap()
         app.buttons["GCash"].tap()
@@ -33,7 +33,7 @@ final class AddFlowUITests: XCTestCase {
         onboard(wallets: ["BPI Savings": "10000", "Credit Card": ""])
 
         app.buttons["Add"].firstMatch.tap()
-        app.buttons["Expense"].tap()
+        app.buttons["choose.expense"].tap()
         app.textFields["Amount"].typeText("2000")
         app.buttons["Groceries"].tap()
         app.buttons["Credit Card"].tap()
@@ -43,11 +43,11 @@ final class AddFlowUITests: XCTestCase {
         XCTAssertTrue(element(containing: "Total money", "8,000").exists)
 
         app.buttons["Add"].firstMatch.tap()
-        app.buttons["Transfer"].tap()
+        app.buttons["choose.transfer"].tap()
         app.textFields["Amount"].typeText("2000")
         app.buttons["BPI Savings"].firstMatch.tap()                  // From
         app.buttons.matching(identifier: "Credit Card").element(boundBy: 1).tap()  // To
-        app.buttons["Transfer"].tap()
+        app.buttons["entry.submit"].tap()
 
         XCTAssertTrue(app.textFields["Amount"].waitForNonExistence(timeout: 5), "transfer sheet should close")
         XCTAssertTrue(element(containing: "Total money", "8,000").exists)
@@ -64,7 +64,7 @@ final class AddFlowUITests: XCTestCase {
     func testEmptyAmountIsRejected() {
         onboard(wallets: ["Cash": "100"])
         app.buttons["Add"].firstMatch.tap()
-        app.buttons["Expense"].tap()
+        app.buttons["choose.expense"].tap()
         app.buttons["Add Expense"].tap()
         XCTAssertTrue(app.staticTexts["Enter an amount"].waitForExistence(timeout: 3))
     }

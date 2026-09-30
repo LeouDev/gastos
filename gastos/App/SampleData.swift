@@ -15,6 +15,8 @@ enum SampleData {
         let gcash = Account(name: "GCash", type: .eWallet, openingBalance: 3_000, currency: "PHP", colorHex: "0096D6")
         let cash = Account(name: "Cash", type: .cash, openingBalance: 2_500, currency: "PHP", colorHex: "34A853")
         let card = Account(name: "BPI Credit Card", type: .creditCard, currency: "PHP", colorHex: "8E44AD")
+        (bpi.cardSkin, card.cardSkin, cash.cardSkin, gcash.cardSkin) = ("ember", "midnight", "linen", "ocean")
+        (bpi.cardEmblem, card.cardEmblem, cash.cardEmblem) = ("BPI", "VISA", "₱")
         for (index, account) in [bpi, gcash, cash, card].enumerated() {
             account.sortOrder = index
             context.insert(account)

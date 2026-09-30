@@ -16,6 +16,8 @@ final class ScreenTourUITests: XCTestCase {
     func testTour() {
         XCTAssertTrue(app.buttons["Settings"].waitForExistence(timeout: 10))
         shot("01 Home")
+        app.scrollViews.firstMatch.swipeLeft()  // next card in the carousel
+        shot("01b Home next card")
         app.swipeUp()
         shot("02 Home scrolled")
 
@@ -24,7 +26,8 @@ final class ScreenTourUITests: XCTestCase {
         tab("Wallets"); shot("04 Wallets")
         app.buttons.matching(NSPredicate(format: "label CONTAINS 'GCash'")).firstMatch.tap()
         shot("05 Wallet detail")
-        app.buttons["Edit"].tap(); shot("06 Wallet editor")
+        app.buttons["Edit"].tap()
+        app.buttons["Card Style"].tap(); shot("06 Card style")
         app.buttons["Cancel"].tap()
 
         tab("Insights"); shot("07 Insights")
@@ -47,7 +50,7 @@ final class ScreenTourUITests: XCTestCase {
         for type in ["Expense", "Income", "Transfer"] {
             app.buttons["Add"].firstMatch.tap()
             if type == "Expense" { shot("15 What happened") }
-            app.buttons[type].tap()
+            app.buttons["choose.\(type.lowercased())"].tap()
             shot("16 Add \(type)")
             app.buttons["Cancel"].tap()
         }

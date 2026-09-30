@@ -5,6 +5,8 @@ import SwiftData
 struct AddEntryView: View {
     var initialType: EntryType?
     var editing: Entry?
+    var account: Account?
+    var toAccount: Account?
 
     @Environment(\.dismiss) private var dismiss
     @Query(filter: #Predicate<Account> { $0.isActive }, sort: [SortDescriptor(\Account.sortOrder), SortDescriptor(\Account.createdAt)])
@@ -22,7 +24,7 @@ struct AddEntryView: View {
                         buttonTitle: "Add Wallet"
                     ) { addingWallet = true }
                 } else if let type = type ?? editing?.type {
-                    EntryForm(type: type, editing: editing, accounts: accounts) { dismiss() }
+                    EntryForm(type: type, editing: editing, accounts: accounts, presetAccount: account, presetToAccount: toAccount) { dismiss() }
                 } else {
                     TypeChooser { picked in withAnimation(.snappy) { type = picked } }
                 }
@@ -67,6 +69,7 @@ private struct TypeChooser: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel(type.label)
                 .accessibilityHint(hint(type))
+                .accessibilityIdentifier("choose.\(type.rawValue)")
             }
             Spacer(minLength: 0)
         }
@@ -86,6 +89,8 @@ struct EntryForm: View {
     let type: EntryType
     let editing: Entry?
     let accounts: [Account]
+    var presetAccount: Account?
+    var presetToAccount: Account?
     var onDone: () -> Void
 
     @Environment(\.modelContext) private var context
@@ -155,6 +160,7 @@ struct EntryForm: View {
                 }
                 Button(buttonTitle, action: save)
                     .buttonStyle(PrimaryButtonStyle())
+                    .accessibilityIdentifier("entry.submit")
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
@@ -244,7 +250,10 @@ struct EntryForm: View {
             toAccount = editing.toAccount
             date = editing.date
         } else {
-            account = accounts.first { $0.id.uuidString == lastAccountID } ?? accounts.first
+            account = presetAccount ?? accounts.first { $0.id.uuidString == lastAccountID } ?? accounts.first
+            toAccount = presetToAccount
+            // "Pay card" presets the destination; don't let the source default to that same card.
+            if let presetToAccount, account == presetToAccount { account = accounts.first { $0 != presetToAccount } }
             amountFocused = true
         }
     }

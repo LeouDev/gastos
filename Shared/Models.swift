@@ -94,6 +94,12 @@ final class Account {
     var isActive: Bool = true
     var sortOrder: Int = 0
     var createdAt: Date = Date()
+    /// Card look: a texture name ("ember"), "color:RRGGBB" or "photo". Empty = the wallet's color.
+    var cardSkin: String = ""
+    /// Short text in the card's corner ("BPI", "G"). Empty = the name's first letter.
+    var cardEmblem: String = ""
+    /// Only for the "photo" skin. Stays on this device; other devices fall back to the wallet color.
+    @Attribute(.externalStorage) var cardPhoto: Data?
 
     @Relationship(deleteRule: .cascade, inverse: \Entry.account)
     var entries: [Entry]? = []

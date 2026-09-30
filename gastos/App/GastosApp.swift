@@ -36,6 +36,7 @@ struct GastosApp: App {
 struct ContentGate: View {
     @AppStorage(SettingsKey.hasOnboarded) private var hasOnboarded = false
     @AppStorage(SettingsKey.appLock) private var appLockOn = false
+    @AppStorage(SettingsKey.appearance) private var appearance = "dark"
     @State private var locked = AppGroup.defaults.bool(forKey: SettingsKey.appLock)
     @State private var authenticating = false
     @Environment(\.scenePhase) private var scenePhase
@@ -55,6 +56,7 @@ struct ContentGate: View {
             }
         }
         .tint(.brand)
+        .preferredColorScheme(appearance == "light" ? .light : appearance == "dark" ? .dark : nil)
         .task {
             Seed.categoriesIfNeeded(in: context)
             RecurringPoster.postDue(in: context)

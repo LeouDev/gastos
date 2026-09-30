@@ -5,11 +5,6 @@ enum AppTab: Hashable {
     case home, transactions, add, wallets, insights
 }
 
-struct AddRequest: Identifiable {
-    let id = UUID()
-    var type: EntryType?
-}
-
 struct RootView: View {
     @State private var tab: AppTab = .home
     @State private var addRequest: AddRequest?
@@ -25,9 +20,10 @@ struct RootView: View {
             Tab("Wallets", systemImage: "wallet.bifold.fill", value: AppTab.wallets) { WalletsView() }
             Tab("Insights", systemImage: "chart.bar.fill", value: AppTab.insights) { InsightsView() }
         }
-        .environment(\.addEntry) { type in addRequest = AddRequest(type: type) }
+        .tabViewBottomAccessory { SafeToSpendAccessory() }
+        .environment(\.addEntry, AddEntryAction { addRequest = $0 })
         .sheet(item: $addRequest) { request in
-            AddEntryView(initialType: request.type)
+            AddEntryView(initialType: request.type, account: request.account, toAccount: request.toAccount)
         }
         .onOpenURL(perform: open)
     }
