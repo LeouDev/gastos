@@ -119,9 +119,9 @@ extension Entry {
 
     var displayIcon: String {
         switch type {
-        case .expense: category?.icon ?? "📦"
-        case .income: category?.icon ?? "💰"
-        case .transfer: "↔️"
+        case .expense: category?.icon ?? "square.grid.2x2.fill"
+        case .income: category?.icon ?? "banknote.fill"
+        case .transfer: "arrow.left.arrow.right"
         }
     }
 

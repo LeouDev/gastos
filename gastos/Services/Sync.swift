@@ -109,6 +109,7 @@ final class SyncService {
             try await pull(context, userID: userID)
             // Pulls can bring in copies made on another device before they synced.
             SyncCleanup.run(in: context)
+            IconUpgrade.run(in: context)
             try context.save()
             WidgetCenter.shared.reloadAllTimelines()
             lastSynced = .now

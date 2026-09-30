@@ -33,12 +33,12 @@ enum AccountType: String, Codable, CaseIterable, Identifiable {
 
     var defaultIcon: String {
         switch self {
-        case .cash: "💵"
-        case .bank: "🏦"
-        case .debit: "💳"
-        case .creditCard: "💳"
-        case .eWallet: "📱"
-        case .other: "👛"
+        case .cash: "banknote.fill"
+        case .bank: "building.columns.fill"
+        case .debit: "creditcard.fill"
+        case .creditCard: "creditcard.fill"
+        case .eWallet: "iphone.gen3"
+        case .other: "wallet.bifold.fill"
         }
     }
 }
@@ -58,9 +58,17 @@ enum EntryType: String, Codable, CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
-        case .expense: "💸"
-        case .income: "💰"
-        case .transfer: "↔️"
+        case .expense: "minus"
+        case .income: "plus"
+        case .transfer: "arrow.left.arrow.right"
+        }
+    }
+
+    var colorHex: String {
+        switch self {
+        case .expense: "D8141A"
+        case .income: "1E9E5A"
+        case .transfer: "2F6FEB"
         }
     }
 }
@@ -89,7 +97,7 @@ final class Account {
     /// Balance before any recorded entry. Current balance is derived, see `balance`.
     var openingBalance: Decimal = 0
     var currency: String = "PHP"
-    var icon: String = "💵"
+    var icon: String = "banknote.fill"
     var colorHex: String = "D8141A"
     var isActive: Bool = true
     var sortOrder: Int = 0
@@ -167,7 +175,7 @@ final class Entry {
 final class Category {
     @Attribute(.preserveValueOnDeletion) var id: UUID = UUID()
     var name: String = ""
-    var icon: String = "🏷️"
+    var icon: String = "tag.fill"
     var colorHex: String = "8E8E93"
     var isDefault: Bool = false
     var sortOrder: Int = 0
@@ -190,18 +198,27 @@ final class Category {
     var budget: Budget? { budgets?.first }
 
     static let defaults: [(String, String, String)] = [
-        ("Food", "🍔", "FF8A00"),
-        ("Groceries", "🛒", "34A853"),
-        ("Bills", "🏠", "2F6FEB"),
-        ("Transport", "🚕", "00A6A6"),
-        ("Shopping", "🛍️", "E83E8C"),
-        ("Entertainment", "🎮", "8E44AD"),
-        ("Health", "💊", "E53935"),
-        ("Education", "📚", "3F51B5"),
-        ("Travel", "✈️", "0096D6"),
-        ("Personal", "💅", "F4B400"),
-        ("Subscriptions", "📺", "10B981"),
-        ("Other", "📦", "8E8E93"),
+        ("Food", "fork.knife", "FF8A00"),
+        ("Groceries", "cart.fill", "34A853"),
+        ("Bills", "bolt.fill", "2F6FEB"),
+        ("Transport", "car.fill", "00A6A6"),
+        ("Shopping", "bag.fill", "E83E8C"),
+        ("Entertainment", "gamecontroller.fill", "8E44AD"),
+        ("Health", "cross.case.fill", "E53935"),
+        ("Education", "book.fill", "3F51B5"),
+        ("Travel", "airplane", "0096D6"),
+        ("Personal", "sparkles", "F4B400"),
+        ("Subscriptions", "play.rectangle.fill", "10B981"),
+        ("Other", "square.grid.2x2.fill", "8E8E93"),
+    ]
+
+    /// The emoji gastos used to ship with, and the symbol that replaces each. Used once to upgrade.
+    static let emojiToSymbol: [String: String] = [
+        "🍔": "fork.knife", "🛒": "cart.fill", "🏠": "bolt.fill", "🚕": "car.fill", "🛍️": "bag.fill",
+        "🎮": "gamecontroller.fill", "💊": "cross.case.fill", "📚": "book.fill", "✈️": "airplane",
+        "💅": "sparkles", "📺": "play.rectangle.fill", "📦": "square.grid.2x2.fill",
+        // Wallet type defaults.
+        "💵": "banknote.fill", "🏦": "building.columns.fill", "💳": "creditcard.fill", "📱": "iphone.gen3", "👛": "wallet.bifold.fill",
     ]
 }
 

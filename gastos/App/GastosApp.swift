@@ -83,6 +83,7 @@ struct ContentGate: View {
         .task {
             if Self.requiresSubscription { subscription.start() }
             Seed.categoriesIfNeeded(in: context)
+            IconUpgrade.run(in: context)
             RecurringPoster.postDue(in: context)
             if !ProcessInfo.processInfo.arguments.contains("-uiTesting") {
                 SyncService.shared.start(container: context.container)

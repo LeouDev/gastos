@@ -11,12 +11,12 @@ struct OnboardingView: View {
     }
 
     static let suggestions = [
-        Suggestion(name: "Cash", icon: "💵", type: .cash, colorHex: "34A853"),
-        Suggestion(name: "GCash", icon: "📱", type: .eWallet, colorHex: "0096D6"),
-        Suggestion(name: "Maya", icon: "💚", type: .eWallet, colorHex: "10B981"),
-        Suggestion(name: "BPI Savings", icon: "🏦", type: .bank, colorHex: "D8141A"),
-        Suggestion(name: "BDO Savings", icon: "🏦", type: .bank, colorHex: "2F6FEB"),
-        Suggestion(name: "Credit Card", icon: "💳", type: .creditCard, colorHex: "8E44AD"),
+        Suggestion(name: "Cash", icon: "banknote.fill", type: .cash, colorHex: "34A853"),
+        Suggestion(name: "GCash", icon: "iphone.gen3", type: .eWallet, colorHex: "0096D6"),
+        Suggestion(name: "Maya", icon: "iphone.gen3", type: .eWallet, colorHex: "10B981"),
+        Suggestion(name: "BPI Savings", icon: "building.columns.fill", type: .bank, colorHex: "D8141A"),
+        Suggestion(name: "BDO Savings", icon: "building.columns.fill", type: .bank, colorHex: "2F6FEB"),
+        Suggestion(name: "Credit Card", icon: "creditcard.fill", type: .creditCard, colorHex: "8E44AD"),
     ]
 
     @Environment(\.modelContext) private var context
@@ -124,7 +124,7 @@ struct OnboardingView: View {
                             withAnimation(.snappy) { picked[item.name] = selected ? nil : "" }
                         } label: {
                             HStack(spacing: 14) {
-                                EmojiBadge(emoji: item.icon, colorHex: item.colorHex)
+                                IconBadge(icon: item.icon, colorHex: item.colorHex)
                                 Text(item.name).font(.headline).foregroundStyle(Color.ink)
                                 Spacer()
                                 Image(systemName: selected ? "checkmark.circle.fill" : "circle")

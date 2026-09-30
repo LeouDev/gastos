@@ -39,7 +39,8 @@ private struct BudgetEditRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("\(category.icon) \(category.name)")
+                IconBadge(icon: category.icon, colorHex: category.colorHex, size: 30)
+                Text(category.name)
                 Spacer()
                 Text(currencySymbol(currency)).foregroundStyle(Color.muted)
                 TextField("No budget", text: $text)

@@ -370,7 +370,7 @@ struct CategoryBar: View {
         let ratio = budget > 0 ? (amount / budget).double : (total > 0 ? (amount / total).double : 0)
         VStack(spacing: 8) {
             HStack {
-                Text(category?.icon ?? "📦")
+                IconBadge(icon: category?.icon ?? "square.grid.2x2.fill", colorHex: category?.colorHex ?? "8E8E93", size: 30)
                 Text(category?.name ?? "Uncategorized").font(.body.weight(.semibold)).foregroundStyle(Color.ink)
                 Spacer()
                 Text(amount.money(currency)).font(.body.weight(.semibold).monospacedDigit()).foregroundStyle(Color.ink)

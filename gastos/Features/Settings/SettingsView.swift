@@ -153,7 +153,7 @@ struct CategoriesView: View {
             ForEach(categories) { category in
                 Button { editing = category } label: {
                     HStack(spacing: 14) {
-                        EmojiBadge(emoji: category.icon, colorHex: category.colorHex, size: 36)
+                        IconBadge(icon: category.icon, colorHex: category.colorHex, size: 36)
                         Text(category.name).foregroundStyle(Color.ink)
                     }
                 }
@@ -196,7 +196,7 @@ struct CategoryEditor: View {
     @Environment(\.modelContext) private var context
     @Query private var all: [Category]
     @State private var name = ""
-    @State private var icon = "🏷️"
+    @State private var icon = "tag.fill"
     @State private var colorHex = "FF8A00"
 
     var body: some View {
@@ -204,7 +204,7 @@ struct CategoryEditor: View {
             Form {
                 Section { TextField("Name", text: $name).font(.headline) }
                 Section {
-                    EmojiField(emoji: $icon, suggestions: ["🍔", "☕", "🛒", "🏠", "🚕", "⛽", "🛍️", "🎮", "💊", "📚", "✈️", "💅", "📺", "🐶", "👶", "🎁", "🙏", "📦"])
+                    IconField(icon: $icon, colorHex: colorHex)
                     ColorField(hex: $colorHex)
                 }
             }
@@ -232,7 +232,7 @@ struct CategoryEditor: View {
             return new
         }()
         target.name = name.trimmingCharacters(in: .whitespaces)
-        target.icon = icon.isEmpty ? "🏷️" : icon
+        target.icon = icon.isEmpty ? "tag.fill" : icon
         target.colorHex = colorHex
         dismiss()
     }

@@ -120,17 +120,63 @@ struct ProgressBar: View {
     }
 }
 
-struct EmojiBadge: View {
-    let emoji: String
+/// Icons are SF Symbol names ("fork.knife"); anything else (a user's emoji) is drawn as text.
+enum Icon {
+    static func isSymbol(_ icon: String) -> Bool {
+        !icon.isEmpty && icon.allSatisfy(\.isASCII) && UIImage(systemName: icon) != nil
+    }
+
+    /// Choices in the icon picker.
+    static let symbols = [
+        "fork.knife", "cup.and.saucer.fill", "cart.fill", "basket.fill", "bag.fill", "gift.fill",
+        "bolt.fill", "drop.fill", "flame.fill", "wifi", "phone.fill", "house.fill",
+        "car.fill", "bus.fill", "tram.fill", "fuelpump.fill", "airplane", "bicycle",
+        "cross.case.fill", "pills.fill", "heart.fill", "dumbbell.fill", "book.fill", "graduationcap.fill",
+        "gamecontroller.fill", "film.fill", "music.note", "play.rectangle.fill", "tshirt.fill", "sparkles",
+        "pawprint.fill", "figure.and.child.holdinghands", "wrench.and.screwdriver.fill", "briefcase.fill", "hands.and.sparkles.fill", "square.grid.2x2.fill",
+        "banknote.fill", "creditcard.fill", "building.columns.fill", "iphone.gen3", "wallet.bifold.fill", "dollarsign.circle.fill",
+    ]
+}
+
+/// A category or wallet icon: white symbol on a solid color circle (or an emoji on a soft tint).
+struct IconBadge: View {
+    let icon: String
     var colorHex: String = "8E8E93"
     var size: CGFloat = 44
 
     var body: some View {
-        Text(emoji)
-            .font(.system(size: size * 0.5))
-            .frame(width: size, height: size)
-            .background(Color(hex: colorHex).opacity(0.15), in: .rect(cornerRadius: size * 0.32, style: .continuous))
-            .accessibilityHidden(true)
+        let color = Color(hex: colorHex)
+        Group {
+            if Icon.isSymbol(icon) {
+                Image(systemName: icon)
+                    .font(.system(size: size * 0.42, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: size, height: size)
+                    .background(color.gradient, in: .circle)
+            } else {
+                Text(icon)
+                    .font(.system(size: size * 0.5))
+                    .frame(width: size, height: size)
+                    .background(color.opacity(0.18), in: .circle)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// The bare icon, for inline use (chips, menus).
+struct IconGlyph: View {
+    let icon: String
+
+    var body: some View {
+        if Icon.isSymbol(icon) { Image(systemName: icon) } else { Text(icon) }
+    }
+}
+
+/// "icon name" for picker menus, which only draw an image and text.
+func iconLabel(_ icon: String, _ name: String) -> some View {
+    Group {
+        if Icon.isSymbol(icon) { Label(name, systemImage: icon) } else { Text("\(icon) \(name)") }
     }
 }
 
@@ -154,13 +200,16 @@ struct PrimaryButtonStyle: ButtonStyle {
 struct Chip: View {
     let icon: String
     let title: String
+    var colorHex: String = "8E8E93"
     var selected: Bool
     var action: () -> Void
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
-                Text(icon)
+                IconGlyph(icon: icon)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(selected ? .white : Color(hex: colorHex))
                 Text(title).font(.subheadline.weight(.semibold)).lineLimit(1)
             }
             .padding(.horizontal, 14)
@@ -176,36 +225,49 @@ struct Chip: View {
     }
 }
 
-/// One-emoji text field with quick suggestions.
-struct EmojiField: View {
-    @Binding var emoji: String
-    var suggestions: [String]
+/// Pick a symbol from the grid, or type an emoji instead.
+struct IconField: View {
+    @Binding var icon: String
+    var colorHex: String
+
+    @State private var emoji = ""
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             HStack {
                 Text("Icon")
                 Spacer()
-                TextField("🙂", text: $emoji)
-                    .multilineTextAlignment(.trailing)
-                    .font(.title)
-                    .frame(width: 60)
-                    .onChange(of: emoji) { _, new in
-                        if new.count > 1 { emoji = String(new.suffix(1)) }
-                    }
+                IconBadge(icon: icon, colorHex: colorHex, size: 40)
             }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(suggestions, id: \.self) { item in
-                        Button(item) { emoji = item }
-                            .font(.title2)
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 6), spacing: 10) {
+                ForEach(Icon.symbols, id: \.self) { symbol in
+                    Button { icon = symbol } label: {
+                        Image(systemName: symbol)
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(symbol == icon ? .white : Color.ink)
                             .frame(width: 44, height: 44)
-                            .background(item == emoji ? Color.brand.opacity(0.15) : .clear, in: .circle)
-                            .buttonStyle(.plain)
+                            .background(symbol == icon ? Color(hex: colorHex) : Color.track, in: .circle)
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(symbol.replacingOccurrences(of: ".fill", with: "").replacingOccurrences(of: ".", with: " "))
+                    .accessibilityAddTraits(symbol == icon ? .isSelected : [])
                 }
             }
+            HStack {
+                Text("Or use an emoji").foregroundStyle(Color.muted)
+                Spacer()
+                TextField("🙂", text: $emoji)
+                    .multilineTextAlignment(.trailing)
+                    .font(.title2)
+                    .frame(width: 60)
+                    .onChange(of: emoji) { _, new in
+                        guard let last = new.last else { return }
+                        emoji = String(last)
+                        icon = emoji
+                    }
+            }
         }
+        .onAppear { if !Icon.isSymbol(icon) { emoji = icon } }
     }
 }
 
@@ -239,7 +301,7 @@ struct EntryRow: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            EmojiBadge(emoji: entry.displayIcon, colorHex: entry.category?.colorHex ?? "8E8E93")
+            IconBadge(icon: entry.displayIcon, colorHex: entry.category?.colorHex ?? "8E8E93")
             VStack(alignment: .leading, spacing: 2) {
                 Text(entry.title).font(.body.weight(.semibold)).foregroundStyle(Color.ink).lineLimit(1)
                 Text(entry.subtitle).font(.subheadline).foregroundStyle(Color.muted).lineLimit(1)

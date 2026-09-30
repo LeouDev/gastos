@@ -44,6 +44,19 @@ enum Seed {
 
 /// Sync merges records from every device, so two devices can each seed the default categories
 /// or each post the same recurring occurrence before they sync. This folds those back together.
+enum IconUpgrade {
+    /// Built-in categories and wallets used to ship with emoji; swap those for the matching symbols.
+    /// Icons the user chose themselves (any other emoji) are left alone.
+    static func run(in context: ModelContext) {
+        for category in (try? context.fetch(FetchDescriptor<Category>())) ?? [] {
+            if let symbol = Category.emojiToSymbol[category.icon] { category.icon = symbol }
+        }
+        for account in (try? context.fetch(FetchDescriptor<Account>())) ?? [] {
+            if let symbol = Category.emojiToSymbol[account.icon] { account.icon = symbol }
+        }
+    }
+}
+
 enum SyncCleanup {
     static func run(in context: ModelContext) {
         mergeDuplicateDefaultCategories(in: context)

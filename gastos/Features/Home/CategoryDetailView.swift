@@ -39,7 +39,7 @@ struct CategoryDetailView: View {
             Section("Paid with") {
                 ForEach(byWallet, id: \.account?.id) { row in
                     HStack {
-                        Text(row.account?.icon ?? "👛")
+                        IconBadge(icon: row.account?.icon ?? "wallet.bifold.fill", colorHex: row.account?.colorHex ?? "8E8E93", size: 30)
                         Text(row.account?.name ?? "Deleted wallet").foregroundStyle(Color.ink)
                         Spacer()
                         Text(row.amount.money(currency)).font(.body.weight(.semibold).monospacedDigit())
@@ -56,7 +56,7 @@ struct CategoryDetailView: View {
             }
         }
         .canvasBackground()
-        .navigationTitle("\(category?.icon ?? "📦") \(category?.name ?? "Uncategorized")")
+        .navigationTitle(category?.name ?? "Uncategorized")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $editing) { AddEntryView(editing: $0) }
     }

@@ -505,3 +505,23 @@ struct PhotoOnlyTests {
         #expect(PassCardView(title: "A", kind: "ID", number: "", holder: "", emblem: "", skin: .texture(.mint), photo: photo, hasCode: false, photoOnly: true).showsTextForTesting)
     }
 }
+
+@MainActor
+struct IconUpgradeTests {
+    @Test func oldDefaultEmojiBecomeSymbolsButCustomOnesStay() throws {
+        let container = try Store.inMemory()  // must outlive its context
+        let context = container.mainContext
+        let food = gastos.Category(name: "Food", icon: "🍔", colorHex: "FF8A00", isDefault: true)
+        let pets = gastos.Category(name: "Pets", icon: "🐶", colorHex: "8E8E93")
+        let cash = Account(name: "Cash", type: .cash, currency: "PHP", icon: "💵")
+        context.insert(food); context.insert(pets); context.insert(cash)
+        IconUpgrade.run(in: context)
+        #expect(food.icon == "fork.knife")
+        #expect(pets.icon == "🐶")
+        #expect(cash.icon == "banknote.fill")
+        // Every symbol the app offers or ships must exist, or it would draw nothing.
+        for name in Icon.symbols + Category.defaults.map(\.1) + AccountType.allCases.map(\.defaultIcon) + EntryType.allCases.map(\.icon) {
+            #expect(Icon.isSymbol(name), "\(name)")
+        }
+    }
+}

@@ -56,7 +56,7 @@ struct WalletEditor: View {
                 }
 
                 Section("Look") {
-                    EmojiField(emoji: $icon, suggestions: ["💵", "🏦", "💳", "📱", "👛", "🐷", "💙", "💚", "🟣", "🪙", "🏧", "💼"])
+                    IconField(icon: $icon, colorHex: colorHex)
                     ColorField(hex: $colorHex)
                 }
 

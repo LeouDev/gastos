@@ -21,7 +21,7 @@ struct RecurringListView: View {
             ForEach(rules.sorted { ($0.isActive ? 0 : 1, $0.nextDate) < ($1.isActive ? 0 : 1, $1.nextDate) }) { rule in
                 Button { editing = rule } label: {
                     HStack(spacing: 14) {
-                        EmojiBadge(emoji: rule.type == .income ? "💰" : rule.category?.icon ?? "🔁", colorHex: rule.category?.colorHex ?? "8E8E93")
+                        IconBadge(icon: rule.type == .income ? "banknote.fill" : rule.category?.icon ?? "repeat", colorHex: rule.type == .income ? "1E9E5A" : rule.category?.colorHex ?? "8E8E93")
                         VStack(alignment: .leading, spacing: 2) {
                             Text(rule.name.isEmpty ? "Recurring" : rule.name).font(.body.weight(.semibold)).foregroundStyle(Color.ink)
                             Text(rule.isActive ? "\(rule.frequency.label) · next \(rule.nextDate.friendlyDay)" : "Paused")
@@ -87,12 +87,12 @@ struct RecurringEditor: View {
                     if type == .expense {
                         Picker("Category", selection: $category) {
                             Text("None").tag(Category?.none)
-                            ForEach(categories) { Text("\($0.icon) \($0.name)").tag(Optional($0)) }
+                            ForEach(categories) { iconLabel($0.icon, $0.name).tag(Optional($0)) }
                         }
                     }
                     Picker(type == .income ? "Received in" : "Paid with", selection: $account) {
                         Text("Choose").tag(Account?.none)
-                        ForEach(accounts) { Text("\($0.icon) \($0.name)").tag(Optional($0)) }
+                        ForEach(accounts) { iconLabel($0.icon, $0.name).tag(Optional($0)) }
                     }
                 }
                 Section {

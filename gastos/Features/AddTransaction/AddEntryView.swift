@@ -55,7 +55,7 @@ private struct TypeChooser: View {
             ForEach(EntryType.allCases) { type in
                 Button { pick(type) } label: {
                     HStack(spacing: 16) {
-                        Text(type.icon).font(.title)
+                        IconBadge(icon: type.icon, colorHex: type.colorHex, size: 44)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(type.label).font(.headline).foregroundStyle(Color.ink)
                             Text(hint(type)).font(.subheadline).foregroundStyle(Color.muted)
@@ -199,7 +199,7 @@ struct EntryForm: View {
     private func categoryRow(_ items: ArraySlice<Category>) -> some View {
         HStack(spacing: 8) {
             ForEach(items) { item in
-                Chip(icon: item.icon, title: item.name, selected: item == category) {
+                Chip(icon: item.icon, title: item.name, colorHex: item.colorHex, selected: item == category) {
                     category = item == category ? nil : item
                     amountFocused = false
                 }
@@ -211,7 +211,7 @@ struct EntryForm: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(accounts.filter { $0 != excluding }) { item in
-                    Chip(icon: item.icon, title: item.name, selected: item == selection.wrappedValue) {
+                    Chip(icon: item.icon, title: item.name, colorHex: item.colorHex, selected: item == selection.wrappedValue) {
                         selection.wrappedValue = item
                         amountFocused = false
                     }

@@ -102,12 +102,12 @@ struct TransactionsView: View {
             }
             Picker("Category", selection: $categoryFilter) {
                 Text("All categories").tag(Category?.none)
-                ForEach(categories) { Text("\($0.icon) \($0.name)").tag(Optional($0)) }
+                ForEach(categories) { iconLabel($0.icon, $0.name).tag(Optional($0)) }
             }
             .pickerStyle(.menu)
             Picker("Wallet", selection: $accountFilter) {
                 Text("All wallets").tag(Account?.none)
-                ForEach(accounts) { Text("\($0.icon) \($0.name)").tag(Optional($0)) }
+                ForEach(accounts) { iconLabel($0.icon, $0.name).tag(Optional($0)) }
             }
             .pickerStyle(.menu)
             if isFiltering {

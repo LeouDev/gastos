@@ -40,9 +40,9 @@ struct InsightsView: View {
                     chart(interval: interval)
 
                     HStack(spacing: 12) {
-                        highlight("Top category", icon: byCategory.first?.category?.icon ?? "📦",
+                        highlight("Top category", icon: byCategory.first?.category?.icon ?? "square.grid.2x2.fill", colorHex: byCategory.first?.category?.colorHex ?? "8E8E93",
                                   name: byCategory.first.map { $0.category?.name ?? "Uncategorized" }, amount: byCategory.first?.amount)
-                        highlight("Most used wallet", icon: byAccount.first?.account?.icon ?? "👛",
+                        highlight("Most used wallet", icon: byAccount.first?.account?.icon ?? "wallet.bifold.fill", colorHex: byAccount.first?.account?.colorHex ?? "8E8E93",
                                   name: byAccount.first.map { $0.account?.name ?? "Deleted wallet" }, amount: byAccount.first?.amount)
                     }
 
@@ -96,10 +96,10 @@ struct InsightsView: View {
         .card()
     }
 
-    private func highlight(_ title: String, icon: String, name: String?, amount: Decimal?) -> some View {
+    private func highlight(_ title: String, icon: String, colorHex: String, name: String?, amount: Decimal?) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title).font(.caption.weight(.semibold)).foregroundStyle(Color.muted)
-            Text(icon).font(.title2)
+            IconBadge(icon: icon, colorHex: colorHex, size: 34)
             Text(name ?? "—").font(.headline).foregroundStyle(Color.ink).lineLimit(1)
             Text(amount?.moneyRounded(currency) ?? " ").font(.subheadline.monospacedDigit()).foregroundStyle(Color.muted)
         }
@@ -142,7 +142,8 @@ struct BudgetRow: View {
         let ratio = limit > 0 ? (spent / limit).double : 0
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("\(category.icon) \(category.name)").font(.body.weight(.semibold)).foregroundStyle(Color.ink)
+                IconBadge(icon: category.icon, colorHex: category.colorHex, size: 28)
+                Text(category.name).font(.body.weight(.semibold)).foregroundStyle(Color.ink)
                 Spacer()
                 Text(ratio.formatted(.percent.precision(.fractionLength(0))))
                     .font(.subheadline.weight(.semibold).monospacedDigit())
