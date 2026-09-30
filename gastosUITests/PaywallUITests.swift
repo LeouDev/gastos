@@ -18,7 +18,8 @@ final class PaywallUITests: XCTestCase {
             let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = "no-paywall"; shot.lifetime = .keepAlways; add(shot)
             return XCTFail("Paywall never appeared")
         }
-        XCTAssertTrue(app.buttons["Have a code? Redeem it"].exists)
+        XCTAssertTrue(app.buttons["Redeem a code. Enter the GASTOS code first for 1 month free."].exists)
+        let shot = XCTAttachment(screenshot: app.screenshot()); shot.name = "paywall"; shot.lifetime = .keepAlways; add(shot)
         XCTAssertFalse(app.tabBars.firstMatch.exists, "the app must stay locked until subscribed")
 
         let subscribe = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Subscribe' OR label CONTAINS[c] 'Premium'")).firstMatch

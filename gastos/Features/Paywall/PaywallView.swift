@@ -16,6 +16,7 @@ struct PaywallView: View {
                 Text("Know where your money goes.")
                     .font(.title3.weight(.medium))
                     .foregroundStyle(Color.ink)
+                redeemButton
                 VStack(alignment: .leading, spacing: 10) {
                     perk("bolt.fill", "Add an expense in seconds")
                     perk("chart.pie.fill", "See where it went, and which wallet paid")
@@ -24,11 +25,6 @@ struct PaywallView: View {
                     perk("lock.fill", "Private: no ads, no tracking")
                 }
                 .padding(.top, 6)
-                Button("Have a code? Redeem it") { redeeming = true }
-                    .buttonStyle(.plain)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.brand)
-                    .padding(.top, 4)
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
@@ -45,6 +41,31 @@ struct PaywallView: View {
         .onInAppPurchaseCompletion { _, _ in
             await Subscription.shared.refresh()
         }
+    }
+
+    /// Codes only give a free month before the first payment, so this sits above Subscribe.
+    private var redeemButton: some View {
+        Button { redeeming = true } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "gift.fill")
+                    .font(.title3)
+                    .foregroundStyle(.white)
+                    .frame(width: 40, height: 40)
+                    .background(Color.brand, in: .circle)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Got the GASTOS code?").font(.headline).foregroundStyle(Color.ink)
+                    Text("Enter it first for 1 month free").font(.subheadline).foregroundStyle(Color.muted)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.subheadline.weight(.semibold)).foregroundStyle(Color.muted)
+            }
+            .padding(12)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 22))
+        .accessibilityLabel("Redeem a code. Enter the GASTOS code first for 1 month free.")
+        .padding(.top, 4)
     }
 
     private func perk(_ icon: String, _ text: String) -> some View {
