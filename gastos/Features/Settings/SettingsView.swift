@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 import SwiftData
 import AuthenticationServices
 
@@ -11,6 +12,8 @@ struct SettingsView: View {
     @State private var lockUnavailable = false
     @State private var confirmingDelete = false
     @State private var customizingHomeCard = false
+    @State private var managingSubscription = false
+    @State private var redeemingCode = false
     @Environment(\.colorScheme) private var colorScheme
     private var sync: SyncService { .shared }
 
@@ -35,6 +38,17 @@ struct SettingsView: View {
                 }
                 Toggle("Show balances on cards", isOn: $showBalanceOnCards)
                 Button("Home card style") { customizingHomeCard = true }
+            }
+
+            if ContentGate.requiresSubscription {
+                Section {
+                    Button("Manage subscription") { managingSubscription = true }
+                    Button("Redeem a code") { redeemingCode = true }
+                } header: {
+                    Text("gastos Premium")
+                } footer: {
+                    Text("₱99 a month, billed by Apple. Cancel anytime in Manage subscription. Your data stays on this iPhone either way.")
+                }
             }
 
             Section("Organize") {
@@ -104,6 +118,8 @@ struct SettingsView: View {
         .canvasBackground()
         .navigationTitle("Settings")
         .sheet(isPresented: $customizingHomeCard) { CardCustomizeView(account: nil) }
+        .manageSubscriptionsSheet(isPresented: $managingSubscription)
+        .offerCodeRedemption(isPresented: $redeemingCode) { _ in Task { await Subscription.shared.refresh() } }
         .confirmationDialog("Delete your gastos account?", isPresented: $confirmingDelete, titleVisibility: .visible) {
             Button("Delete Account", role: .destructive) { Task { await sync.deleteAccount() } }
         } message: {

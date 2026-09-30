@@ -25,6 +25,9 @@
          <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "AA0000000000000000000101" BuildableName = "gastos.app" BlueprintName = "gastos" ReferencedContainer = "container:gastos.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <StoreKitConfigurationFileReference
+         identifier = "../../gastosTests/Products.storekit">
+      </StoreKitConfigurationFileReference>
       <CommandLineArguments>
          <CommandLineArgument argument = "-sampleData" isEnabled = "NO">
          </CommandLineArgument>

@@ -46,11 +46,28 @@ struct ContentGate: View {
     @State private var authenticating = false
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.modelContext) private var context
+    private var subscription: Subscription { .shared }
+
+    /// Release builds always require the subscription. Debug builds (Xcode, tests, screenshots) skip
+    /// it unless launched with `-paywall`, so development isn't locked out before the product exists.
+    static let requiresSubscription: Bool = {
+        #if DEBUG
+        return ProcessInfo.processInfo.arguments.contains("-paywall")
+        #else
+        return true
+        #endif
+    }()
 
     var body: some View {
         ZStack {
             if hasOnboarded {
-                RootView()
+                if !Self.requiresSubscription || subscription.state == .active {
+                    RootView()
+                } else if subscription.state == .checking {
+                    Color.canvas.ignoresSafeArea()  // a moment while StoreKit reads entitlements
+                } else {
+                    PaywallView().transition(.opacity)
+                }
             } else {
                 OnboardingView()
             }
@@ -62,7 +79,9 @@ struct ContentGate: View {
         }
         .tint(.brand)
         .preferredColorScheme(appearance == "light" ? .light : appearance == "dark" ? .dark : nil)
+        .animation(.snappy, value: subscription.state)
         .task {
+            if Self.requiresSubscription { subscription.start() }
             Seed.categoriesIfNeeded(in: context)
             RecurringPoster.postDue(in: context)
             if !ProcessInfo.processInfo.arguments.contains("-uiTesting") {

@@ -71,3 +71,16 @@ Each run archives a Release build with a timestamp build number and uploads it. 
 
 - **Internal testers:** up to 100 people on your App Store Connect team. No review needed.
 - **External testers:** up to 10,000, invited by email or a public link. Needs a one-time Beta App Review, a beta description, and a privacy policy URL. Use [PRIVACY.md](PRIVACY.md): <https://github.com/LeouDev/gastos/blob/main/PRIVACY.md>.
+
+## Subscription (gastos Premium)
+
+gastos is pay-to-use: ₱99/month as an auto-renewing App Store subscription. After onboarding, `ContentGate` shows `PaywallView` until `Subscription` (StoreKit 2, `gastos/Services/Subscription.swift`) finds an active, Apple-signed transaction. It works offline and has no server check. The offer code **GASTOS** gives the first month free.
+
+- **Debug builds** skip the paywall unless launched with `-paywall`. This keeps development usable before the product exists in App Store Connect. **Release builds always require the subscription.**
+- **Local testing:** the scheme uses `gastosTests/Products.storekit` (₱99/month in the Philippine storefront, plus the GASTOS code). Run with `-paywall` to try buying in the simulator. `PaywallUITests` buys the subscription through this test store and checks that the app unlocks.
+
+**App Store Connect setup (one time):**
+1. Subscriptions → create a group named **gastos**, then an auto-renewable subscription with Product ID `com.leoudev.gastos.premium.monthly`, duration **1 month**, and price **₱99**. Check that ₱99 is one of Apple's price points for the Philippines, and pick the closest one if not.
+2. On that subscription → Offer Codes → create a **Custom Code** named `GASTOS`: type **Free**, duration **1 month**, eligibility **New subscribers**, and set the redemption limit. Custom codes expire (at most 6 months), so renew it.
+3. Enrol in the **App Store Small Business Program** for the 15% commission.
+4. Agreements, Tax, and Banking → accept the Paid Apps agreement and add bank details. Without this, the subscription can't be sold.

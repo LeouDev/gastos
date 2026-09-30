@@ -1,0 +1,58 @@
+{
+  "identifier": "4B7E2C10",
+  "nonRenewingSubscriptions": [],
+  "products": [],
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_locale": "en_PH",
+    "_storefront": "PHL",
+    "_storeKitErrors": []
+  },
+  "subscriptionGroups": [
+    {
+      "id": "21500001",
+      "localizations": [],
+      "name": "gastos",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [
+            {
+              "displayPrice": "0",
+              "eligibility": [
+                "expired",
+                "new"
+              ],
+              "internalID": "6700000003",
+              "isStackable": false,
+              "paymentMode": "free",
+              "referenceName": "GASTOS",
+              "subscriptionPeriod": "P1M"
+            }
+          ],
+          "displayPrice": "99.00",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "6700000002",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Everything in gastos, billed monthly.",
+              "displayName": "gastos Premium",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.leoudev.gastos.premium.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Premium Monthly",
+          "subscriptionGroupID": "21500001",
+          "type": "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 3,
+    "minor": 0
+  }
+}

@@ -13,6 +13,10 @@ gastos is a personal finance tracker. It is built to keep your money data privat
 
 We don't collect anything else. There are no ads, no analytics SDKs, no tracking across apps or websites, and no access to your contacts, location, photos or bank logins. gastos never connects to your bank.
 
+## Payments
+
+The gastos subscription is sold and billed by Apple through the App Store. We never see your card or payment details; Apple only tells the app whether your subscription is active.
+
 ## How it's stored and protected
 
 - Synced data is stored by our database provider, [Supabase](https://supabase.com/privacy), in Singapore (region `ap-southeast-1`).
