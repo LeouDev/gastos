@@ -210,6 +210,15 @@ enum Period: String, CaseIterable, Identifiable {
         }
     }
 
+    /// The previous period cut to the same elapsed length as the current one, so a half-finished
+    /// month is compared with the first half of last month, not all of it.
+    func previousToDate(_ interval: DateInterval, now: Date = .now, calendar: Calendar = .current) -> DateInterval {
+        let previous = previous(interval, calendar: calendar)
+        guard interval.containsHalfOpen(now) else { return previous }
+        let elapsed = now.timeIntervalSince(interval.start)
+        return DateInterval(start: previous.start, end: min(previous.end, previous.start.addingTimeInterval(elapsed)))
+    }
+
     func previous(_ interval: DateInterval, calendar: Calendar = .current) -> DateInterval {
         let (component, value): (Calendar.Component, Int) = switch self {
         case .week: (.weekOfYear, -1)

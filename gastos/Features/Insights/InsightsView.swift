@@ -11,7 +11,7 @@ struct InsightsView: View {
     var body: some View {
         let interval = period.interval()
         let spent = Finance.total(entries, .expense, in: interval, currency: currency)
-        let previous = Finance.total(entries, .expense, in: period.previous(interval), currency: currency)
+        let previous = Finance.total(entries, .expense, in: period.previousToDate(interval), currency: currency)
         let byCategory = Finance.spendingByCategory(entries, in: interval, currency: currency)
         let byAccount = Finance.spendingByAccount(entries, in: interval, currency: currency)
 
@@ -59,10 +59,10 @@ struct InsightsView: View {
 
     private var previousLabel: String {
         switch period {
-        case .week: "last week"
-        case .month: "last month"
-        case .quarter: "previous 3 months"
-        case .year: "last year"
+        case .week: "this time last week"
+        case .month: "this time last month"
+        case .quarter: "the 3 months before"
+        case .year: "this time last year"
         }
     }
 

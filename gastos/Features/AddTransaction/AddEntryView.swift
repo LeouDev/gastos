@@ -99,6 +99,7 @@ struct EntryForm: View {
     @State private var date = Date.now
     @State private var problem: String?
     @FocusState private var amountFocused: Bool
+    @ScaledMetric(relativeTo: .largeTitle) private var amountSize: CGFloat = 56
 
     var body: some View {
         ScrollView {
@@ -167,10 +168,10 @@ struct EntryForm: View {
     private var amountField: some View {
         HStack(alignment: .firstTextBaseline, spacing: 4) {
             Text(currencySymbol(account?.currency ?? currency))
-                .font(.system(size: 40, weight: .bold, design: .rounded))
+                .font(.system(size: amountSize * 0.7, weight: .bold, design: .rounded))
                 .foregroundStyle(Color.muted)
             TextField("0", text: $amountText)
-                .font(.system(size: 56, weight: .bold, design: .rounded))
+                .font(.system(size: amountSize, weight: .bold, design: .rounded))
                 .foregroundStyle(Color.ink)
                 .keyboardType(.decimalPad)
                 .focused($amountFocused)

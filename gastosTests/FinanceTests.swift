@@ -207,6 +207,56 @@ struct FinanceTests {
         #expect(series.filter { $0.amount == 0 }.count == 6)
     }
 
+    @Test func comparisonUsesTheSameElapsedTime() {
+        let now = date(2026, 9, 10, 12)
+        let september = Period.month.interval(containing: now, calendar: calendar)
+        let slice = Period.month.previousToDate(september, now: now, calendar: calendar)
+        #expect(slice.start == date(2026, 8, 1, 0))
+        #expect(slice.end == date(2026, 8, 10, 12))
+        // A finished period compares against the whole previous one.
+        let august = Period.month.interval(containing: date(2026, 8, 5), calendar: calendar)
+        #expect(Period.month.previousToDate(august, now: now, calendar: calendar) == Period.month.previous(august, calendar: calendar))
+    }
+
+    @Test func syncCleanupMergesDuplicateDefaultCategories() throws {
+        let bpi = account("BPI")
+        let foodA = gastos.Category(name: "Food", icon: "🍔", colorHex: "FF8A00", isDefault: true, sortOrder: 0)
+        let foodB = gastos.Category(name: "Food", icon: "🍔", colorHex: "FF8A00", isDefault: true, sortOrder: 0)
+        let mine = gastos.Category(name: "Food", icon: "🍜", colorHex: "FF8A00", isDefault: false, sortOrder: 20)
+        [foodA, foodB, mine].forEach(context.insert)
+        context.insert(Budget(amount: 5_000, category: foodB))
+        add(.expense, 100, from: bpi, category: foodA)
+        add(.expense, 200, from: bpi, category: foodB)
+        try context.save()
+
+        SyncCleanup.run(in: context)
+        try context.save()
+
+        let defaults = try context.fetch(FetchDescriptor<gastos.Category>()).filter(\.isDefault)
+        #expect(defaults.count == 1)
+        #expect(defaults[0].entries?.count == 2)
+        #expect(defaults[0].budget?.amount == 5_000)
+        #expect(try context.fetchCount(FetchDescriptor<gastos.Category>()) == 2)  // the user's own "Food" stays
+    }
+
+    @Test func syncCleanupRemovesRecurringEntriesPostedTwice() throws {
+        let bpi = account("BPI", .bank, 1_000)
+        let rule = RecurringTransaction(name: "Netflix", amount: 549, type: .expense, frequency: .monthly, startDate: date(2026, 9, 1), account: bpi, category: nil)
+        context.insert(rule)
+        for _ in 0..<2 {  // two devices, same occurrence
+            let entry = add(.expense, 549, from: bpi, date: date(2026, 9, 1))
+            entry.recurringID = rule.id
+        }
+        add(.expense, 549, from: bpi, date: date(2026, 9, 1))  // a manual one with the same amount stays
+        try context.save()
+
+        SyncCleanup.run(in: context)
+        try context.save()
+
+        #expect(try context.fetchCount(FetchDescriptor<Entry>()) == 2)
+        #expect(bpi.balance == Decimal(-98))  // 1,000 − 549 − 549; spell out Decimal, #expect mistypes the literal math
+    }
+
     @Test func percentChange() {
         #expect(Finance.change(current: 108, previous: 100) == 0.08)
         #expect(Finance.change(current: 50, previous: 0) == nil)

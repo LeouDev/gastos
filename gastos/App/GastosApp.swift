@@ -65,6 +65,7 @@ struct ContentGate: View {
                 WidgetCenter.shared.reloadAllTimelines()
             case .active:
                 RecurringPoster.postDue(in: context)
+                SyncCleanup.run(in: context)
                 if locked { unlock() }
             default:
                 break

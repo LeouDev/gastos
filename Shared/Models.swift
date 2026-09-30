@@ -130,6 +130,8 @@ final class Entry {
     var note: String = ""
     var createdAt: Date = Date()
     var updatedAt: Date = Date()
+    /// Set when a recurring rule created this entry; used to drop duplicates made on another device.
+    var recurringID: UUID?
 
     /// Paid with / received in / transferred from.
     var account: Account?
