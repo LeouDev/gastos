@@ -72,6 +72,7 @@ struct TransactionsView: View {
                 }
             }
             .canvasBackground()
+            .refreshable { await SyncService.shared.sync() }
             .overlay {
                 if entries.isEmpty {
                     ContentUnavailableView {

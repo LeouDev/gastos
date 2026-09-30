@@ -17,10 +17,9 @@ struct GastosApp: App {
         }
         #endif
         do {
-            return try Store.container(cloud: true)
+            return try Store.container()
         } catch {
-            // iCloud can refuse to start (e.g. unsigned builds). Local data still works.
-            do { return try Store.container(cloud: false) } catch { fatalError("Could not open the gastos store: \(error)") }
+            fatalError("Could not open the gastos store: \(error)")
         }
     }()
 
@@ -59,6 +58,9 @@ struct ContentGate: View {
         .task {
             Seed.categoriesIfNeeded(in: context)
             RecurringPoster.postDue(in: context)
+            if !ProcessInfo.processInfo.arguments.contains("-uiTesting") {
+                SyncService.shared.start(container: context.container)
+            }
         }
         .onChange(of: scenePhase) { _, phase in
             switch phase {
@@ -66,9 +68,11 @@ struct ContentGate: View {
                 if appLockOn { locked = true }
                 try? context.save()
                 WidgetCenter.shared.reloadAllTimelines()
+                Task { await SyncService.shared.sync() }
             case .active:
                 RecurringPoster.postDue(in: context)
                 SyncCleanup.run(in: context)
+                Task { await SyncService.shared.sync() }
                 if locked { unlock() }
             default:
                 break

@@ -1,6 +1,6 @@
 # gastos
 
-Know where your money goes. A native iOS finance tracker built with SwiftUI, SwiftData, Swift Charts and WidgetKit. It stores data on the device first and syncs through iCloud.
+Know where your money goes. A native iOS finance tracker built with SwiftUI, SwiftData, Swift Charts and WidgetKit. It stores data on the device first. Signing in is optional and turns on sync through Supabase.
 
 ## Run
 
@@ -35,6 +35,20 @@ gastosTests/       Swift Testing suite for the financial rules
 gastosUITests/     XCUITest end-to-end flows
 ```
 
-## iCloud & signing
+## Sync (Supabase)
 
-The app uses the iCloud container `iCloud.com.leoudev.gastos` and the app group `group.com.leoudev.gastos` under team `Z5643XKUTZ`. The first time you run it on a real device, Xcode's automatic signing registers both of these. `ModelConfiguration(cloudKitDatabase: .automatic)` falls back to local-only storage if iCloud isn't available.
+Syncing is optional. In Settings, **Sign in with Apple** turns it on. With no account, everything stays on the device and works offline.
+
+- **Local store:** SwiftData is always what the UI reads.
+- **Push:** `SyncService` (`gastos/Services/Sync.swift`) reads local changes from SwiftData history, so cascaded deletes are included. It upserts them to Supabase and sends deletes as `deleted = true` tombstones.
+- **Pull:** it fetches rows whose server-side `updated_at` is newer than the last pull. The last write wins.
+- **When it runs:** on app open, when the app goes to the background, on pull-to-refresh, and from **Sync now** in Settings.
+- **Server security:** tables `accounts`, `categories`, `entries`, `budgets` and `recurring_transactions` all have row-level security, so each user sees only their own rows. There is no DELETE policy, because deletes are tombstones.
+- **Account deletion:** the `delete_my_account()` RPC removes the auth user, which deletes all of their rows.
+- **Money:** amounts are Postgres `numeric` and travel as text, so no `Double` ever touches them.
+
+**One-time setup (Supabase dashboard):** go to Authentication → Sign In / Providers → Apple, enable it, and add `com.leoudev.gastos` under Client IDs.
+
+## Signing
+
+Team `Z5643XKUTZ`. The capabilities are the app group `group.com.leoudev.gastos` (shared with the widget) and Sign in with Apple. Xcode's automatic signing needs your Apple account under Xcode → Settings → Accounts.

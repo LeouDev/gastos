@@ -35,6 +35,7 @@ struct HomeView: View {
                 }
             }
             .canvasBackground()
+            .refreshable { await SyncService.shared.sync() }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink { SettingsView() } label: { Image(systemName: "gearshape") }

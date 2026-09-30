@@ -1,11 +1,15 @@
 import SwiftUI
 import SwiftData
+import AuthenticationServices
 
 struct SettingsView: View {
     @AppStorage(SettingsKey.currency) private var currency = "PHP"
     @AppStorage(SettingsKey.appLock) private var appLock = false
     @AppStorage(SettingsKey.showSafeToSpend) private var showSafeToSpend = true
     @State private var lockUnavailable = false
+    @State private var confirmingDelete = false
+    @Environment(\.colorScheme) private var colorScheme
+    private var sync: SyncService { .shared }
 
     var body: some View {
         Form {
@@ -27,11 +31,52 @@ struct SettingsView: View {
             }
 
             Section {
+                if sync.isSignedIn {
+                    LabeledContent("Signed in", value: sync.email ?? "Apple ID")
+                    Button {
+                        Task { await sync.sync() }
+                    } label: {
+                        HStack {
+                            Text("Sync now")
+                            Spacer()
+                            if sync.isSyncing {
+                                ProgressView()
+                            } else if let last = sync.lastSynced {
+                                Text(last, format: .relative(presentation: .named)).foregroundStyle(Color.muted)
+                            }
+                        }
+                    }
+                    .disabled(sync.isSyncing)
+                    Button("Sign out") { Task { await sync.signOut() } }
+                    Button("Delete account", role: .destructive) { confirmingDelete = true }
+                } else {
+                    SignInWithAppleButton(.signIn) { request in
+                        sync.prepare(request)
+                    } onCompletion: { result in
+                        Task { await sync.completeSignIn(result) }
+                    }
+                    .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
+                    .frame(height: 48)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                }
+                if let error = sync.lastError {
+                    Text(error).font(.footnote).foregroundStyle(Color.brand)
+                }
+            } header: {
+                Text("Sync")
+            } footer: {
+                Text(sync.isSignedIn
+                     ? "Syncs when you open or leave gastos. Signing out or deleting your account keeps everything on this iPhone."
+                     : "Optional. Sign in to back up and sync across your devices. gastos works fully without an account.")
+            }
+
+            Section {
                 Toggle("Lock gastos with \(AppLock.methodName)", isOn: Binding(get: { appLock }, set: setLock))
             } header: {
                 Text("Privacy")
             } footer: {
-                Text("Your money data stays on your devices and in your own iCloud. No accounts, no ads, no tracking, and nothing is ever sold or shared.")
+                Text("Your money data lives on this iPhone. If you sign in, it's also stored in your private gastos account so it can sync. Only you can read it. No ads, no tracking, and nothing is ever sold or shared.")
             }
 
             Section {
@@ -45,6 +90,11 @@ struct SettingsView: View {
         .tint(.brand)
         .canvasBackground()
         .navigationTitle("Settings")
+        .confirmationDialog("Delete your gastos account?", isPresented: $confirmingDelete, titleVisibility: .visible) {
+            Button("Delete Account", role: .destructive) { Task { await sync.deleteAccount() } }
+        } message: {
+            Text("Everything stored in your account is deleted from the server. Data on this iPhone stays.")
+        }
         .alert("Set a device passcode first", isPresented: $lockUnavailable) {
             Button("OK", role: .cancel) {}
         } message: {

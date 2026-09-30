@@ -361,3 +361,36 @@ struct IntroMotionTests {
         #expect(abs(IntroMotion.interactiveAt - 4.15) < 1e-9)
     }
 }
+
+@MainActor
+struct SyncRecordTests {
+    @Test func recordsRoundTripThroughJSONWithExactMoney() throws {
+        let container = try Store.inMemory()
+        let context = container.mainContext
+        let bpi = Account(name: "BPI", type: .bank, openingBalance: Decimal(string: "999999999999.99")!, currency: "PHP")
+        let food = gastos.Category(name: "Food", icon: "🍔", colorHex: "FF8A00")
+        let entry = Entry(type: .expense, amount: Decimal(string: "0.1")!, note: "Lunch", account: bpi, category: food)
+        context.insert(bpi); context.insert(food); context.insert(entry)
+        try context.save()
+
+        func roundTrip<T: Codable>(_ value: T) throws -> T {
+            let encoder = JSONEncoder(); encoder.dateEncodingStrategy = .iso8601
+            let decoder = JSONDecoder(); decoder.dateDecodingStrategy = .iso8601
+            return try decoder.decode(T.self, from: encoder.encode(value))
+        }
+
+        let accountCopy = AccountRecord.make(bpi.id)
+        try roundTrip(AccountRecord(bpi)).apply(to: accountCopy)
+        #expect(accountCopy.openingBalance == Decimal(string: "999999999999.99"))
+        #expect(accountCopy.id == bpi.id && accountCopy.type == .bank)
+
+        let categoryCopy = CategoryRecord.make(food.id)
+        try roundTrip(CategoryRecord(food)).apply(to: categoryCopy)
+
+        let entryCopy = EntryRecord.make(entry.id)
+        try roundTrip(EntryRecord(entry)).apply(to: entryCopy, accounts: [bpi.id: accountCopy], categories: [food.id: categoryCopy])
+        #expect(entryCopy.amount == Decimal(string: "0.1"))
+        #expect(entryCopy.account === accountCopy && entryCopy.category === categoryCopy)
+        #expect(entryCopy.note == "Lunch" && entryCopy.type == .expense)
+    }
+}

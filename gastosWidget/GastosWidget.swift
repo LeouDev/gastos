@@ -35,7 +35,7 @@ struct MoneyProvider: TimelineProvider {
     private func load() -> MoneySnapshot {
         let defaults = AppGroup.defaults
         let currency = defaults.string(forKey: SettingsKey.currency) ?? "PHP"
-        guard let container = try? Store.container(cloud: false) else { return MoneySnapshot(currency: currency) }
+        guard let container = try? Store.container() else { return MoneySnapshot(currency: currency) }
         let context = ModelContext(container)
         let accounts = (try? context.fetch(FetchDescriptor<Account>())) ?? []
         let recurring = (try? context.fetch(FetchDescriptor<RecurringTransaction>())) ?? []

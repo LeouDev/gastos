@@ -42,7 +42,7 @@ enum Seed {
     }
 }
 
-/// iCloud merges records from every device, so two devices can each seed the default categories
+/// Sync merges records from every device, so two devices can each seed the default categories
 /// or each post the same recurring occurrence before they sync. This folds those back together.
 enum SyncCleanup {
     static func run(in context: ModelContext) {

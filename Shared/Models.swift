@@ -1,8 +1,8 @@
 import Foundation
 import SwiftData
 
-// All stored properties have defaults and all relationships are optional so the
-// schema stays CloudKit-compatible.
+// All stored properties have defaults and all relationships are optional, so the schema
+// migrates lightweight. `id` survives deletion in SwiftData history so deletes can sync.
 
 enum AccountType: String, Codable, CaseIterable, Identifiable {
     case cash, bank, debit, creditCard, eWallet, other
@@ -83,7 +83,7 @@ enum Frequency: String, Codable, CaseIterable, Identifiable {
 
 @Model
 final class Account {
-    var id: UUID = UUID()
+    @Attribute(.preserveValueOnDeletion) var id: UUID = UUID()
     var name: String = ""
     var typeRaw: String = AccountType.cash.rawValue
     /// Balance before any recorded entry. Current balance is derived, see `balance`.
@@ -120,7 +120,7 @@ final class Account {
 /// A single transaction: an expense, an income, or a transfer between two accounts.
 @Model
 final class Entry {
-    var id: UUID = UUID()
+    @Attribute(.preserveValueOnDeletion) var id: UUID = UUID()
     var typeRaw: String = EntryType.expense.rawValue
     /// Always positive. The type decides the direction.
     var amount: Decimal = 0
@@ -159,7 +159,7 @@ final class Entry {
 
 @Model
 final class Category {
-    var id: UUID = UUID()
+    @Attribute(.preserveValueOnDeletion) var id: UUID = UUID()
     var name: String = ""
     var icon: String = "🏷️"
     var colorHex: String = "8E8E93"
@@ -201,13 +201,13 @@ final class Category {
 
 @Model
 final class Budget {
-    var id: UUID = UUID()
+    @Attribute(.preserveValueOnDeletion) var id: UUID = UUID()
     var amount: Decimal = 0
     /// Only "monthly" today; stored so other periods can be added later.
     var period: String = "monthly"
     var category: Category?
 
-    init(amount: Decimal, category: Category) {
+    init(amount: Decimal, category: Category?) {
         self.amount = amount
         self.category = category
     }
@@ -215,7 +215,7 @@ final class Budget {
 
 @Model
 final class RecurringTransaction {
-    var id: UUID = UUID()
+    @Attribute(.preserveValueOnDeletion) var id: UUID = UUID()
     var name: String = ""
     var amount: Decimal = 0
     var typeRaw: String = EntryType.expense.rawValue

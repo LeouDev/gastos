@@ -27,10 +27,10 @@ enum SettingsKey {
 enum Store {
     static let schema = Schema([Account.self, Entry.self, Category.self, Budget.self, RecurringTransaction.self])
 
-    /// The app's store lives in the app group so the widget can read it.
-    /// `.automatic` turns on CloudKit sync only when the iCloud entitlement is present.
-    static func container(cloud: Bool) throws -> ModelContainer {
-        let config = ModelConfiguration(schema: schema, groupContainer: .automatic, cloudKitDatabase: cloud ? .automatic : .none)
+    /// The app's store lives in the app group so the widget can read it. Syncing is done by
+    /// SyncService (Supabase), never by CloudKit.
+    static func container() throws -> ModelContainer {
+        let config = ModelConfiguration(schema: schema, groupContainer: .automatic, cloudKitDatabase: .none)
         return try ModelContainer(for: schema, configurations: config)
     }
 
