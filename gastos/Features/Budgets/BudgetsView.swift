@@ -55,7 +55,7 @@ private struct BudgetEditRow: View {
             }
         }
         .onAppear {
-            if let amount = category.budget?.amount, amount > 0 { text = amount.formatted(.number.grouping(.never)) }
+            if let amount = category.budget?.amount, amount > 0 { text = amount.formatted(.number) }
         }
         .onChange(of: text) { _, new in save(new) }
     }

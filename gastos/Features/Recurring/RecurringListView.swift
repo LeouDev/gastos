@@ -136,7 +136,7 @@ struct RecurringEditor: View {
         }
         name = rule.name
         type = rule.type
-        amountText = rule.amount.formatted(.number.grouping(.never))
+        amountText = rule.amount.formatted(.number)
         category = rule.category
         account = rule.account
         frequency = rule.frequency

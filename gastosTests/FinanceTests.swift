@@ -441,3 +441,15 @@ struct LocalChangesTests {
         #expect(next.lastToken != nil)  // still advances past it
     }
 }
+
+struct AmountParsingTests {
+    @Test func groupedAmountsRoundTrip() {
+        let us = Locale(identifier: "en_US")
+        #expect(Decimal(string: "10000")!.formatted(.number.locale(us)) == "10,000")
+        #expect(parseAmount("10,000") == 10_000)
+        #expect(parseAmount("1,250.5") == Decimal(string: "1250.5"))
+        #expect(parseAmount("-2,000") == -2_000)
+        #expect(parseAmount("") == nil)
+        #expect(parseAmount("abc") == nil)
+    }
+}

@@ -237,7 +237,7 @@ struct EntryForm: View {
 
     private func populate() {
         if let editing {
-            amountText = editing.amount.formatted(.number.grouping(.never))
+            amountText = editing.amount.formatted(.number)
             note = editing.note
             category = editing.category
             account = editing.account

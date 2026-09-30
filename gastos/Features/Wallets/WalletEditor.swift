@@ -105,7 +105,7 @@ struct WalletEditor: View {
         currency = account.currency
         isActive = account.isActive
         let balance = account.type == .creditCard ? -account.balance : account.balance
-        balanceText = balance == 0 ? "" : balance.formatted(.number.grouping(.never))
+        balanceText = balance == 0 ? "" : balance.formatted(.number)
     }
 
     private func save() {
