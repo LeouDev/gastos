@@ -68,7 +68,12 @@ struct ContentGate: View {
                 if appLockOn { locked = true }
                 try? context.save()
                 WidgetCenter.shared.reloadAllTimelines()
-                Task { await SyncService.shared.sync() }
+                // iOS suspends the app about a second after backgrounding; ask for time to finish the upload.
+                let task = UIApplication.shared.beginBackgroundTask(withName: "sync")
+                Task {
+                    await SyncService.shared.sync()
+                    UIApplication.shared.endBackgroundTask(task)
+                }
             case .active:
                 RecurringPoster.postDue(in: context)
                 SyncCleanup.run(in: context)
