@@ -128,6 +128,8 @@ extension WalletCardView {
 struct CardBackground: View {
     let skin: CardSkin
     var photo: Data?
+    /// Photo exactly as picked, without the readability shading.
+    var plain = false
 
     var body: some View {
         switch skin {
@@ -150,8 +152,10 @@ struct CardBackground: View {
                 if let photo, let image = UIImage(data: photo) {
                     Image(uiImage: image).resizable().scaledToFill()
                 }
-                // Keeps white text readable on any photo.
-                LinearGradient(colors: [.black.opacity(0.35), .clear, .black.opacity(0.45)], startPoint: .top, endPoint: .bottom)
+                if !plain {
+                    // Keeps white text readable on any photo.
+                    LinearGradient(colors: [.black.opacity(0.35), .clear, .black.opacity(0.45)], startPoint: .top, endPoint: .bottom)
+                }
             }
         }
     }

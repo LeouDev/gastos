@@ -494,3 +494,14 @@ struct PassCodeTests {
         #expect(found.1 == .qr)
     }
 }
+
+@MainActor
+struct PhotoOnlyTests {
+    @Test func photoOnlyNeedsAPhotoSkinAndAPhoto() {
+        let photo = Data([0xFF, 0xD8])
+        #expect(PassCardView(title: "A", kind: "ID", number: "", holder: "", emblem: "", skin: .photo, photo: photo, hasCode: false, photoOnly: true).showsTextForTesting == false)
+        // Without a photo, or on another skin, the text stays so the card is never blank.
+        #expect(PassCardView(title: "A", kind: "ID", number: "", holder: "", emblem: "", skin: .photo, photo: nil, hasCode: false, photoOnly: true).showsTextForTesting)
+        #expect(PassCardView(title: "A", kind: "ID", number: "", holder: "", emblem: "", skin: .texture(.mint), photo: photo, hasCode: false, photoOnly: true).showsTextForTesting)
+    }
+}

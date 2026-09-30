@@ -45,6 +45,16 @@ struct PassDetailView: View {
                         .card()
                 }
 
+                if pass.photoOnly && !(pass.holder.isEmpty && pass.number.isEmpty) {
+                    VStack(spacing: 0) {
+                        if !pass.holder.isEmpty { infoRow("Name on card", pass.holder) }
+                        if !pass.holder.isEmpty && !pass.number.isEmpty { Divider() }
+                        if !pass.number.isEmpty { infoRow("Card number", pass.number, monospaced: true) }
+                    }
+                    .padding(.horizontal, 16)
+                    .background(Color.card, in: .rect(cornerRadius: 20, style: .continuous))
+                }
+
                 if !pass.notes.isEmpty {
                     Text(pass.notes).font(.body).foregroundStyle(Color.ink).frame(maxWidth: .infinity, alignment: .leading).card()
                 }
@@ -84,6 +94,16 @@ struct PassDetailView: View {
         // Scanners read screens better at full brightness, as in Apple Wallet.
         .onAppear { if pass.codeFormat != .none && !pass.code.isEmpty { boostBrightness() } }
         .onDisappear(perform: restoreBrightness)
+    }
+
+    private func infoRow(_ label: String, _ value: String, monospaced: Bool = false) -> some View {
+        HStack {
+            Text(label).foregroundStyle(Color.muted)
+            Spacer()
+            Text(value).foregroundStyle(Color.ink).font(monospaced ? .body.monospaced() : .body).textSelection(.enabled)
+        }
+        .frame(minHeight: 48)
+        .accessibilityElement(children: .combine)
     }
 
     private var screen: UIScreen? {
@@ -130,7 +150,7 @@ struct PassEditor: View {
                 Section {
                     PassCardView(title: name, kind: kind.label, number: number, holder: holder, emblem: target.cardEmblem,
                                  skin: CardSkin(raw: target.cardSkin, fallbackHex: target.colorHex), photo: target.cardPhoto,
-                                 hasCode: !code.isEmpty && format != .none)
+                                 hasCode: !code.isEmpty && format != .none, photoOnly: target.photoOnly)
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                     Button("Card style", systemImage: "paintbrush.pointed") { customizing = true }

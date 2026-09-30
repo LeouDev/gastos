@@ -319,6 +319,8 @@ final class Pass {
     var cardEmblem: String = ""
     var colorHex: String = "8E8E93"
     @Attribute(.externalStorage) var cardPhoto: Data?
+    /// With a photo skin: show the photo exactly as it is, no text or shading on top.
+    var photoOnly: Bool = false
     var sortOrder: Int = 0
     var createdAt: Date = Date()
 

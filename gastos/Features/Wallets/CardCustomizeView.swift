@@ -20,6 +20,7 @@ struct CardCustomizeView: View {
     @State private var tab = Tab.textures
     @State private var pickedItem: PhotosPickerItem?
     @State private var customColor = Color.brand
+    @State private var photoOnly = false
 
     var body: some View {
         NavigationStack {
@@ -76,7 +77,8 @@ struct CardCustomizeView: View {
         Group {
             if let pass {
                 PassCardView(title: pass.name, kind: pass.kind.label, number: pass.number, holder: pass.holder,
-                             emblem: emblem, skin: skin, photo: photo, hasCode: !pass.code.isEmpty && pass.codeFormat != .none)
+                             emblem: emblem, skin: skin, photo: photo, hasCode: !pass.code.isEmpty && pass.codeFormat != .none,
+                             photoOnly: photoOnly)
             } else if let account {
                 let base = WalletCardView(account: account)
                 WalletCardView(title: base.title, kind: base.kind, caption: base.caption, amount: base.amount, currency: base.currency,
@@ -117,7 +119,14 @@ struct CardCustomizeView: View {
                     .frame(maxWidth: .infinity, minHeight: 50)
             }
             .buttonStyle(.glass)
-            Text(pass != nil ? "Tip: use a photo of the real card." : "Photos stay on this iPhone. Your other devices show the wallet's color.")
+            if pass != nil && photo != nil {
+                Toggle("Photo only", isOn: $photoOnly)
+                    .padding(.horizontal, 16).frame(minHeight: 50)
+                    .background(Color.card, in: .rect(cornerRadius: 18, style: .continuous))
+            }
+            Text(pass != nil
+                 ? "Tip: use a photo of the real card. Photo only shows it exactly as it is, with the name and number on the card's screen instead."
+                 : "Photos stay on this iPhone. Your other devices show the wallet's color.")
                 .font(.footnote).foregroundStyle(Color.muted).multilineTextAlignment(.center)
         }
     }
@@ -145,6 +154,7 @@ struct CardCustomizeView: View {
             skin = CardSkin(raw: pass.cardSkin, fallbackHex: pass.colorHex)
             emblem = pass.cardEmblem
             photo = pass.cardPhoto
+            photoOnly = pass.photoOnly
         } else if let account {
             skin = CardSkin(raw: account.cardSkin, fallbackHex: account.colorHex)
             emblem = account.cardEmblem
@@ -170,6 +180,7 @@ struct CardCustomizeView: View {
             pass.cardSkin = skin.raw
             pass.cardEmblem = emblem.trimmingCharacters(in: .whitespaces)
             pass.cardPhoto = skin == .photo ? photo : nil
+            pass.photoOnly = skin == .photo && photoOnly
         } else if let account {
             account.cardSkin = skin.raw
             account.cardEmblem = emblem.trimmingCharacters(in: .whitespaces)
