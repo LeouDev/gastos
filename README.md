@@ -52,3 +52,22 @@ Syncing is optional. In Settings, **Sign in with Apple** turns it on. With no ac
 ## Signing
 
 Team `Z5643XKUTZ`. The capabilities are the app group `group.com.leoudev.gastos` (shared with the widget) and Sign in with Apple. Xcode's automatic signing needs your Apple account under Xcode → Settings → Accounts.
+
+## TestFlight
+
+**One-time setup in App Store Connect:** go to Apps → **+** → New App.
+- **Platform:** iOS
+- **Bundle ID:** `com.leoudev.gastos`
+- **SKU:** any unique text, e.g. `gastos-ios`
+- **Name:** App Store names are unique, so plain "gastos" may be taken. Try something like "gastos — money tracker".
+
+**Upload a build:**
+
+```sh
+scripts/testflight.sh
+```
+
+Each run archives a Release build with a timestamp build number and uploads it. Builds show up under TestFlight after processing.
+
+- **Internal testers:** up to 100 people on your App Store Connect team. No review needed.
+- **External testers:** up to 10,000, invited by email or a public link. Needs a one-time Beta App Review, a beta description, and a privacy policy URL. Use [PRIVACY.md](PRIVACY.md): <https://github.com/LeouDev/gastos/blob/main/PRIVACY.md>.
