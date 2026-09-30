@@ -64,41 +64,41 @@ struct WalletCardView: View {
 
     var body: some View {
         let ink = skin.ink
-        ZStack {
-            CardBackground(skin: skin, photo: photo)
-            VStack(alignment: .leading) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(title).font(.headline).lineLimit(1)
-                    Spacer()
-                    Text(kind.uppercased()).font(.caption2.weight(.semibold)).tracking(1.2).opacity(0.8)
-                }
-                Spacer(minLength: 8)
-                HStack(alignment: .lastTextBaseline) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(caption).font(.caption).opacity(0.8)
-                        if showBalance {
-                            HStack(alignment: .firstTextBaseline, spacing: 2) {
-                                Text(currencySymbol(currency)).font(.system(.title3, design: .rounded, weight: .light)).opacity(0.75)
-                                Text(amount.formatted(.number.precision(.fractionLength(0...2))))
-                                    .font(.system(size: 34, weight: .medium, design: .rounded))
-                                    .contentTransition(.numericText(value: amount.double))
-                            }
-                            .minimumScaleFactor(0.6)
-                            .lineLimit(1)
-                        } else {
-                            Text("••••••").font(.system(size: 30, weight: .medium, design: .rounded))
-                        }
-                    }
-                    Spacer()
-                    Text(emblem).font(.headline.weight(.bold)).opacity(0.9).lineLimit(1)
-                }
+        // The background sits behind the text rather than sizing the card, so a tall photo
+        // can't stretch the layout and push the title past the top edge.
+        VStack(alignment: .leading) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(title).font(.headline).lineLimit(1)
+                Spacer()
+                Text(kind.uppercased()).font(.caption2.weight(.semibold)).tracking(1.2).opacity(0.8)
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 16)
-            .foregroundStyle(ink)
+            Spacer(minLength: 8)
+            HStack(alignment: .lastTextBaseline) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(caption).font(.caption).opacity(0.8)
+                    if showBalance {
+                        HStack(alignment: .firstTextBaseline, spacing: 2) {
+                            Text(currencySymbol(currency)).font(.system(.title3, design: .rounded, weight: .light)).opacity(0.75)
+                            Text(amount.formatted(.number.precision(.fractionLength(0...2))))
+                                .font(.system(size: 34, weight: .medium, design: .rounded))
+                                .contentTransition(.numericText(value: amount.double))
+                        }
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(1)
+                    } else {
+                        Text("••••••").font(.system(size: 30, weight: .medium, design: .rounded))
+                    }
+                }
+                Spacer()
+                Text(emblem).font(.headline.weight(.bold)).opacity(0.9).lineLimit(1)
+            }
         }
-        .frame(height: 216)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
+        .foregroundStyle(ink)
         .frame(maxWidth: .infinity)
+        .frame(height: 216)
+        .background { CardBackground(skin: skin, photo: photo) }
         .clipShape(.rect(cornerRadius: 22, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: 1))
         .shadow(color: .black.opacity(0.35), radius: 14, y: 10)

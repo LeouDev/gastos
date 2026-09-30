@@ -1,5 +1,6 @@
 #if DEBUG
 import Foundation
+import UIKit
 import SwiftData
 
 /// Demo data for previews and screenshots only (launch with `-sampleData`). Never used in release builds.
@@ -15,7 +16,13 @@ enum SampleData {
         let gcash = Account(name: "GCash", type: .eWallet, openingBalance: 3_000, currency: "PHP", colorHex: "0096D6")
         let cash = Account(name: "Cash", type: .cash, openingBalance: 2_500, currency: "PHP", colorHex: "34A853")
         let card = Account(name: "BPI Credit Card", type: .creditCard, currency: "PHP", colorHex: "8E44AD")
-        (bpi.cardSkin, card.cardSkin, cash.cardSkin, gcash.cardSkin) = ("ember", "midnight", "linen", "ocean")
+        (bpi.cardSkin, card.cardSkin, cash.cardSkin, gcash.cardSkin) = ("ember", "midnight", "photo", "ocean")
+        // A tall portrait photo: the case that used to push the card title past the top edge.
+        cash.cardPhoto = UIGraphicsImageRenderer(size: CGSize(width: 600, height: 1400)).image { context in
+            UIColor(white: 0.12, alpha: 1).setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 600, height: 1400))
+            UIImage(named: "Logo")?.draw(in: CGRect(x: 60, y: 420, width: 480, height: 480))
+        }.jpegData(compressionQuality: 0.8)
         (bpi.cardEmblem, card.cardEmblem, cash.cardEmblem) = ("BPI", "VISA", "₱")
         for (index, account) in [bpi, gcash, cash, card].enumerated() {
             account.sortOrder = index

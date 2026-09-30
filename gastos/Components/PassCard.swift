@@ -13,36 +13,36 @@ struct PassCardView: View {
     var hasCode: Bool
 
     var body: some View {
-        ZStack {
-            CardBackground(skin: skin, photo: photo)
-            VStack(alignment: .leading) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(title.isEmpty ? "New card" : title).font(.headline).lineLimit(1)
-                    Spacer()
-                    Text(kind.uppercased()).font(.caption2.weight(.semibold)).tracking(1.2).opacity(0.8)
+        // The background sits behind the text rather than sizing the card, so a tall photo
+        // can't stretch the layout and push the title past the top edge.
+        VStack(alignment: .leading) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(title.isEmpty ? "New card" : title).font(.headline).lineLimit(1)
+                Spacer()
+                Text(kind.uppercased()).font(.caption2.weight(.semibold)).tracking(1.2).opacity(0.8)
+            }
+            Spacer(minLength: 8)
+            HStack(alignment: .bottom) {
+                VStack(alignment: .leading, spacing: 2) {
+                    if !holder.isEmpty { Text(holder).font(.caption).opacity(0.85).lineLimit(1) }
+                    if !number.isEmpty {
+                        Text(number).font(.system(.title3, design: .monospaced, weight: .medium)).lineLimit(1).minimumScaleFactor(0.6)
+                    }
                 }
-                Spacer(minLength: 8)
-                HStack(alignment: .bottom) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        if !holder.isEmpty { Text(holder).font(.caption).opacity(0.85).lineLimit(1) }
-                        if !number.isEmpty {
-                            Text(number).font(.system(.title3, design: .monospaced, weight: .medium)).lineLimit(1).minimumScaleFactor(0.6)
-                        }
-                    }
-                    Spacer()
-                    if hasCode {
-                        Image(systemName: "qrcode").font(.title2.weight(.semibold)).opacity(0.9)
-                    } else if !emblem.isEmpty {
-                        Text(emblem).font(.headline.weight(.bold)).opacity(0.9)
-                    }
+                Spacer()
+                if hasCode {
+                    Image(systemName: "qrcode").font(.title2.weight(.semibold)).opacity(0.9)
+                } else if !emblem.isEmpty {
+                    Text(emblem).font(.headline.weight(.bold)).opacity(0.9)
                 }
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 16)
-            .foregroundStyle(skin.ink)
         }
-        .frame(height: 216)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
+        .foregroundStyle(skin.ink)
         .frame(maxWidth: .infinity)
+        .frame(height: 216)
+        .background { CardBackground(skin: skin, photo: photo) }
         .clipShape(.rect(cornerRadius: 22, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: 1))
         .shadow(color: .black.opacity(0.35), radius: 14, y: 10)

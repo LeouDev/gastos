@@ -66,14 +66,8 @@ struct WalletsView: View {
                                 if showHidden { stack(hidden.map(StackItem.wallet)).opacity(0.7) }
                             }
 
-                            HStack {
-                                Text("Cards & passes").font(.title3.weight(.bold)).foregroundStyle(Color.ink)
-                                Spacer()
-                                Button("Add", systemImage: "plus") { addingPass = true }
-                                    .font(.subheadline.weight(.semibold))
-                                    .buttonStyle(.glass)
-                            }
-                            .padding(.top, 8)
+                            Text("Cards & passes").font(.title3.weight(.bold)).foregroundStyle(Color.ink)
+                                .padding(.top, 8)
                             if passes.isEmpty {
                                 Button { addingPass = true } label: {
                                     VStack(spacing: 8) {
