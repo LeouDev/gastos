@@ -3,7 +3,17 @@ import SwiftData
 
 enum AppGroup {
     static let id = "group.com.leoudev.gastos"
-    static let defaults = UserDefaults(suiteName: id) ?? .standard
+    static let defaults: UserDefaults = {
+        #if DEBUG
+        // UI tests start from a clean slate every launch.
+        if ProcessInfo.processInfo.arguments.contains("-uiTesting") {
+            let suite = "gastos.uitests"
+            UserDefaults().removePersistentDomain(forName: suite)
+            return UserDefaults(suiteName: suite)!
+        }
+        #endif
+        return UserDefaults(suiteName: id) ?? .standard
+    }()
 }
 
 enum SettingsKey {

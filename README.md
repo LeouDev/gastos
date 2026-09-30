@@ -6,7 +6,7 @@ Know where your money goes. A native iOS finance tracker built with SwiftUI, Swi
 
 Open `gastos.xcodeproj` in Xcode 26 and run the **gastos** scheme (iOS 26+).
 
-- Tests: `⌘U`, or `xcodebuild -scheme gastos -destination 'platform=iOS Simulator,name=iPhone 17e' test`
+- Tests: `⌘U`, or `xcodebuild -scheme gastos -destination 'platform=iOS Simulator,name=iPhone 17e' test`. This runs the unit tests for the money rules (`gastosTests`) and UI tests that drive onboarding, adding an expense, and paying a credit card (`gastosUITests`). UI tests launch the app with `-uiTesting`, which gives each test a fresh in-memory store and clean settings.
 - Demo data (Debug only): turn on the `-sampleData` launch argument in the scheme. It uses an in-memory store and never touches real data.
 - Deep links: `gastos://add/expense`, `gastos://add/income`, `gastos://add/transfer`
 
@@ -32,6 +32,7 @@ gastos/Services    app lock, recurring posting, first-launch seed
 gastos/Features    Home, Transactions, Wallets, AddTransaction, Insights, Budgets, Recurring, Settings, Onboarding
 gastosWidget/      home-screen widget (total money, safe to spend, quick add)
 gastosTests/       Swift Testing suite for the financial rules
+gastosUITests/     XCUITest end-to-end flows
 ```
 
 ## iCloud & signing

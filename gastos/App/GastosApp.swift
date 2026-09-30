@@ -6,6 +6,9 @@ import WidgetKit
 struct GastosApp: App {
     let container: ModelContainer = {
         #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-uiTesting") {
+            return try! Store.inMemory()
+        }
         if ProcessInfo.processInfo.arguments.contains("-sampleData") {
             let container = try! Store.inMemory()
             SampleData.insert(into: container.mainContext)

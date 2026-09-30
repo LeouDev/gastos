@@ -21,6 +21,13 @@
 			remoteGlobalIDString = AA0000000000000000000103;
 			remoteInfo = gastosWidget;
 		};
+		AA0000000000000000000303 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0000000000000000000101;
+			remoteInfo = gastos;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -45,6 +52,7 @@
 		AA0000000000000000000011 /* gastos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gastos.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000012 /* gastosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = gastosTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000013 /* gastosWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = gastosWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000014 /* gastosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = gastosUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,12 +60,14 @@
 		AA0000000000000000000022 /* Shared */ = {isa = PBXFileSystemSynchronizedRootGroup; path = Shared; sourceTree = "<group>"; };
 		AA0000000000000000000023 /* gastosWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; path = gastosWidget; sourceTree = "<group>"; };
 		AA0000000000000000000024 /* gastosTests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = gastosTests; sourceTree = "<group>"; };
+		AA0000000000000000000025 /* gastosUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = gastosUITests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AA0000000000000000000201 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000202 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000203 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		AA0000000000000000000204 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -68,6 +78,7 @@
 				AA0000000000000000000022 /* Shared */,
 				AA0000000000000000000023 /* gastosWidget */,
 				AA0000000000000000000024 /* gastosTests */,
+				AA0000000000000000000025 /* gastosUITests */,
 				AA0000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -78,6 +89,7 @@
 				AA0000000000000000000011 /* gastos.app */,
 				AA0000000000000000000012 /* gastosTests.xctest */,
 				AA0000000000000000000013 /* gastosWidget.appex */,
+				AA0000000000000000000014 /* gastosUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -146,6 +158,26 @@
 			productReference = AA0000000000000000000013 /* gastosWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		AA0000000000000000000104 /* gastosUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000000000000000000604;
+			buildPhases = (
+				AA0000000000000000000504 /* Sources */,
+				AA0000000000000000000204 /* Frameworks */,
+				AA0000000000000000000514 /* Resources */,
+			);
+			buildRules = ();
+			dependencies = (
+				AA0000000000000000000703 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AA0000000000000000000025 /* gastosUITests */,
+			);
+			name = gastosUITests;
+			productName = gastosUITests;
+			productReference = AA0000000000000000000014 /* gastosUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -159,6 +191,7 @@
 					AA0000000000000000000101 = { CreatedOnToolsVersion = 26.6; };
 					AA0000000000000000000102 = { CreatedOnToolsVersion = 26.6; TestTargetID = AA0000000000000000000101; };
 					AA0000000000000000000103 = { CreatedOnToolsVersion = 26.6; };
+					AA0000000000000000000104 = { CreatedOnToolsVersion = 26.6; TestTargetID = AA0000000000000000000101; };
 				};
 			};
 			buildConfigurationList = AA0000000000000000000600;
@@ -178,6 +211,7 @@
 				AA0000000000000000000101 /* gastos */,
 				AA0000000000000000000102 /* gastosTests */,
 				AA0000000000000000000103 /* gastosWidget */,
+				AA0000000000000000000104 /* gastosUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -186,17 +220,20 @@
 		AA0000000000000000000511 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000512 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000513 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		AA0000000000000000000514 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AA0000000000000000000501 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000502 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000503 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		AA0000000000000000000504 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
 		AA0000000000000000000701 = {isa = PBXTargetDependency; target = AA0000000000000000000101 /* gastos */; targetProxy = AA0000000000000000000301; };
 		AA0000000000000000000702 = {isa = PBXTargetDependency; target = AA0000000000000000000103 /* gastosWidget */; targetProxy = AA0000000000000000000302; };
+		AA0000000000000000000703 = {isa = PBXTargetDependency; target = AA0000000000000000000101 /* gastos */; targetProxy = AA0000000000000000000303; };
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -376,6 +413,36 @@
 			};
 			name = Release;
 		};
+		AA0000000000000000000650 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leoudev.gastosUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = gastos;
+			};
+			name = Debug;
+		};
+		AA0000000000000000000651 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leoudev.gastosUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = gastos;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -383,6 +450,7 @@
 		AA0000000000000000000601 = {isa = XCConfigurationList; buildConfigurations = (AA0000000000000000000620, AA0000000000000000000621); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		AA0000000000000000000602 = {isa = XCConfigurationList; buildConfigurations = (AA0000000000000000000630, AA0000000000000000000631); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		AA0000000000000000000603 = {isa = XCConfigurationList; buildConfigurations = (AA0000000000000000000640, AA0000000000000000000641); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		AA0000000000000000000604 = {isa = XCConfigurationList; buildConfigurations = (AA0000000000000000000650, AA0000000000000000000651); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 /* End XCConfigurationList section */
 	};
 	rootObject = AA0000000000000000000001 /* Project object */;

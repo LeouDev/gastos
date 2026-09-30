@@ -94,6 +94,8 @@ struct OnboardingView: View {
                         }
                         .buttonStyle(.plain)
                         .sensoryFeedback(.selection, trigger: selected)
+                        .accessibilityLabel(item.name)
+                        .accessibilityAddTraits(selected ? .isSelected : [])
                         if selected {
                             HStack {
                                 Text(item.type == .creditCard ? "Amount owed" : "Balance now").foregroundStyle(Color.muted)
@@ -102,6 +104,7 @@ struct OnboardingView: View {
                                 TextField("0", text: Binding(get: { picked[item.name] ?? "" }, set: { picked[item.name] = $0 }))
                                     .keyboardType(.decimalPad)
                                     .fixedSize()
+                                    .accessibilityLabel("\(item.name) balance")
                                     .font(.body.monospacedDigit())
                             }
                         }

@@ -65,6 +65,8 @@ private struct TypeChooser: View {
                     .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(type.label)
+                .accessibilityHint(hint(type))
             }
             Spacer(minLength: 0)
         }

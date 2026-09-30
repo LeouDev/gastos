@@ -155,6 +155,7 @@ struct Chip: View {
         }
         .buttonStyle(.plain)
         .sensoryFeedback(.selection, trigger: selected)
+        .accessibilityLabel(title)
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }
