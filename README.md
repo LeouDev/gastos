@@ -84,3 +84,17 @@ gastos is pay-to-use: ₱99/month as an auto-renewing App Store subscription, wi
 2. On that subscription → Offer Codes → create a **Custom Code** named `GASTOS`: type **Free**, duration **1 month**, eligibility **New subscribers**, and set the redemption limit. Custom codes expire (at most 6 months), so renew it.
 3. Enrol in the **App Store Small Business Program** for the 15% commission.
 4. Agreements, Tax, and Banking → accept the Paid Apps agreement and add bank details. Without this, the subscription can't be sold.
+
+## App Store
+
+`appstore/SUBMISSION.md` has the listing text, App Privacy answers, age rating and review notes.
+
+- **Screenshots:** `scripts/app-store-screenshots.sh` produces the 6.9" screenshots in `appstore/screenshots/`.
+- **Review video:** `scripts/review-video.sh` records `appstore/review-walkthrough.mp4` on a fresh install. Run it with `TMPDIR` set to an internal disk if the project lives on an external volume.
+- **Upload:** `scripts/testflight.sh` archives the build and uploads it. If command-line signing isn't available, it opens the archive in Xcode Organizer instead.
+
+**Account deletion** goes through the `delete-account` Supabase Edge Function (`supabase/functions/delete-account`). It revokes Sign in with Apple and then deletes the user. It needs these function secrets:
+- `APPLE_TEAM_ID`
+- `APPLE_KEY_ID`
+- `APPLE_PRIVATE_KEY`: the Sign in with Apple .p8 contents
+- `APPLE_CLIENT_ID=com.leoudev.gastos`

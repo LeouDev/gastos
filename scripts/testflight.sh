@@ -9,7 +9,12 @@ rm -rf build/gastos.xcarchive build/export
 xcodebuild -project gastos.xcodeproj -scheme gastos -configuration Release \
   -destination 'generic/platform=iOS' -archivePath build/gastos.xcarchive \
   -allowProvisioningUpdates CURRENT_PROJECT_VERSION=$BUILD archive
-xcodebuild -exportArchive -archivePath build/gastos.xcarchive \
+if xcodebuild -exportArchive -archivePath build/gastos.xcarchive \
   -exportOptionsPlist scripts/ExportOptions.plist -exportPath build/export \
-  -allowProvisioningUpdates
-echo "Uploaded build $BUILD. It appears in App Store Connect → TestFlight after processing (5–30 min)."
+  -allowProvisioningUpdates; then
+  echo "Uploaded build $BUILD. It appears in App Store Connect → TestFlight after processing (5–30 min)."
+else
+  # Command-line signing needs the Apple ID in Xcode's accounts; Organizer handles it interactively.
+  echo "Upload from the command line failed; opening the archive in Xcode Organizer (Distribute App → App Store Connect)."
+  open build/gastos.xcarchive
+fi

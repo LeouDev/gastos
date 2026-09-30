@@ -123,7 +123,7 @@ struct SettingsView: View {
         .confirmationDialog("Delete your gastos account?", isPresented: $confirmingDelete, titleVisibility: .visible) {
             Button("Delete Account", role: .destructive) { Task { await sync.deleteAccount() } }
         } message: {
-            Text("Everything stored in your account is deleted from the server. Data on this iPhone stays.")
+            Text("You'll confirm with Apple once more. Everything stored in your account is deleted from the server and gastos is removed from your Apple ID's Sign in with Apple. Data on this iPhone stays.")
         }
         .alert("Set a device passcode first", isPresented: $lockUnavailable) {
             Button("OK", role: .cancel) {}
