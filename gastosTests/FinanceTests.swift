@@ -394,3 +394,50 @@ struct SyncRecordTests {
         #expect(entryCopy.note == "Lunch" && entryCopy.type == .expense)
     }
 }
+
+@MainActor
+struct LocalChangesTests {
+    /// History needs a real SQLite store, not an in-memory one.
+    private func diskContainer() throws -> ModelContainer {
+        let url = FileManager.default.temporaryDirectory.appending(path: "gastos-history-\(UUID().uuidString).store")
+        return try ModelContainer(for: Store.schema, configurations: ModelConfiguration(schema: Store.schema, url: url, cloudKitDatabase: .none))
+    }
+
+    @Test func deletingAWalletReportsItsCascadedEntriesForSync() throws {
+        let container = try diskContainer()  // must outlive its context
+        let context = container.mainContext
+        let bpi = Account(name: "BPI", type: .bank, currency: "PHP")
+        context.insert(bpi)
+        let lunch = Entry(type: .expense, amount: 350, account: bpi)
+        let rent = Entry(type: .expense, amount: 12_500, account: bpi)
+        context.insert(lunch); context.insert(rent)
+        try context.save()
+        let before = try LocalChanges.since(nil, in: context, ignoring: "sync")
+        #expect(before.changed.count >= 3)
+
+        let (walletID, entryIDs) = (bpi.id, Set([lunch.id, rent.id]))
+        context.delete(bpi)
+        try context.save()
+
+        let after = try LocalChanges.since(before.lastToken, in: context, ignoring: "sync")
+        #expect(after.deleted["accounts"] == [walletID])
+        #expect(Set(after.deleted["entries"] ?? []) == entryIDs)
+    }
+
+    @Test func changesWrittenBySyncAreNotPushedBack() throws {
+        let container = try diskContainer()  // must outlive its context
+        let context = container.mainContext
+        context.insert(Account(name: "Mine", type: .cash, currency: "PHP"))
+        try context.save()
+        let start = try LocalChanges.since(nil, in: context, ignoring: "sync")
+
+        context.author = "sync"
+        context.insert(Account(name: "From server", type: .cash, currency: "PHP"))
+        try context.save()
+        context.author = nil
+
+        let next = try LocalChanges.since(start.lastToken, in: context, ignoring: "sync")
+        #expect(next.changed.isEmpty)
+        #expect(next.lastToken != nil)  // still advances past it
+    }
+}

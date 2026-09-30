@@ -4,6 +4,7 @@ import Supabase
 import AuthenticationServices
 import CryptoKit
 import os
+import WidgetKit
 
 /// Optional account + sync through Supabase. The on-device SwiftData store stays the source the
 /// UI reads; sync pushes local changes (read from SwiftData history, so cascaded deletes are
@@ -22,7 +23,10 @@ final class SyncService {
     private let client = SupabaseClient(
         supabaseURL: URL(string: "https://ctdgkkyljnrkudcstncr.supabase.co")!,
         // Publishable key: safe to ship, every table is protected by row-level security.
-        supabaseKey: "sb_publishable_9qii6kIKpESSUs-dn9DOeQ_8GQRoWpk"
+        supabaseKey: "sb_publishable_9qii6kIKpESSUs-dn9DOeQ_8GQRoWpk",
+        // Session lives in the Keychain (SDK default). A stored session counts as signed in even if
+        // its access token expired; the SDK refreshes it on the next request.
+        options: .init(auth: .init(emitLocalSessionAsInitialSession: true))
     )
     private var container: ModelContainer?
     private static let author = "sync"
@@ -32,10 +36,10 @@ final class SyncService {
         guard self.container == nil else { return }
         self.container = container
         Task {
-            for await (_, session) in client.auth.authStateChanges {
+            for await (event, session) in client.auth.authStateChanges {
                 userID = session?.user.id
                 email = session?.user.email
-                if session != nil { await sync() }
+                if session != nil, event == .initialSession || event == .signedIn { await sync() }
             }
         }
     }
@@ -106,6 +110,7 @@ final class SyncService {
             // Pulls can bring in copies made on another device before they synced.
             SyncCleanup.run(in: context)
             try context.save()
+            WidgetCenter.shared.reloadAllTimelines()
             lastSynced = .now
             lastError = nil
         } catch {
@@ -119,25 +124,9 @@ final class SyncService {
             .flatMap { try? JSONDecoder().decode(DefaultHistoryToken.self, from: $0) }
         let pushedAll = UserDefaults.standard.bool(forKey: pushedAllKey(userID))
 
-        var changed = Set<PersistentIdentifier>()
-        var deleted: [String: [UUID]] = [:]
-        var descriptor = HistoryDescriptor<DefaultHistoryTransaction>()
-        if let stored { descriptor.predicate = #Predicate { $0.token > stored } }
-        let history = try context.fetchHistory(descriptor)
-
-        if pushedAll {
-            for transaction in history where transaction.author != Self.author {
-                for change in transaction.changes {
-                    switch change {
-                    case .insert(let insert): changed.insert(insert.changedPersistentIdentifier)
-                    case .update(let update): changed.insert(update.changedPersistentIdentifier)
-                    case .delete(let delete):
-                        if let (table, id) = Self.tombstone(delete) { deleted[table, default: []].append(id) }
-                    @unknown default: break
-                    }
-                }
-            }
-        }
+        let local = try LocalChanges.since(stored, in: context, ignoring: Self.author)
+        let changed = pushedAll ? local.changed : []
+        let deleted = pushedAll ? local.deleted : [:]
         // First sync for this account: send everything on this iPhone.
         let everything = !pushedAll
         func pick<T: PersistentModel>(_: T.Type) throws -> [T] {
@@ -153,7 +142,7 @@ final class SyncService {
             try await client.from(table).update(["deleted": true]).in("id", values: ids.map(\.uuidString)).execute()
         }
 
-        if let last = history.last?.token {
+        if let last = local.lastToken {
             UserDefaults.standard.set(try JSONEncoder().encode(last), forKey: pushKey(userID))
         }
         UserDefaults.standard.set(true, forKey: pushedAllKey(userID))
@@ -234,6 +223,38 @@ final class SyncService {
         Dictionary(try context.fetch(FetchDescriptor<T>()).map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
     }
 
+    private func pushKey(_ user: UUID) -> String { "sync.pushToken.\(user.uuidString)" }
+    private func pullKey(_ user: UUID) -> String { "sync.pullCursor.\(user.uuidString)" }
+    private func pushedAllKey(_ user: UUID) -> String { "sync.pushedAll.\(user.uuidString)" }
+}
+
+/// What changed locally since a history token, read from SwiftData history. Transactions written
+/// by `ignoring` (the sync itself) are skipped so pulled rows aren't pushed straight back.
+struct LocalChanges {
+    var changed = Set<PersistentIdentifier>()
+    /// Table name → ids, including rows removed by cascade.
+    var deleted: [String: [UUID]] = [:]
+    var lastToken: DefaultHistoryToken?
+
+    static func since(_ token: DefaultHistoryToken?, in context: ModelContext, ignoring author: String) throws -> LocalChanges {
+        var descriptor = HistoryDescriptor<DefaultHistoryTransaction>()
+        if let token { descriptor.predicate = #Predicate { $0.token > token } }
+        let history = try context.fetchHistory(descriptor)
+        var result = LocalChanges(lastToken: history.last?.token)
+        for transaction in history where transaction.author != author {
+            for change in transaction.changes {
+                switch change {
+                case .insert(let insert): result.changed.insert(insert.changedPersistentIdentifier)
+                case .update(let update): result.changed.insert(update.changedPersistentIdentifier)
+                case .delete(let delete):
+                    if let (table, id) = tombstone(delete) { result.deleted[table, default: []].append(id) }
+                @unknown default: break
+                }
+            }
+        }
+        return result
+    }
+
     private static func tombstone(_ delete: any HistoryDelete) -> (String, UUID)? {
         if let d = delete as? DefaultHistoryDelete<Account>, let id = d.tombstone[\.id] as? UUID { return ("accounts", id) }
         if let d = delete as? DefaultHistoryDelete<Category>, let id = d.tombstone[\.id] as? UUID { return ("categories", id) }
@@ -243,9 +264,6 @@ final class SyncService {
         return nil
     }
 
-    private func pushKey(_ user: UUID) -> String { "sync.pushToken.\(user.uuidString)" }
-    private func pullKey(_ user: UUID) -> String { "sync.pullCursor.\(user.uuidString)" }
-    private func pushedAllKey(_ user: UUID) -> String { "sync.pushedAll.\(user.uuidString)" }
 }
 
 struct SyncError: LocalizedError {
