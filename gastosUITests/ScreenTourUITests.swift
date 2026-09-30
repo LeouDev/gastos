@@ -29,6 +29,16 @@ final class ScreenTourUITests: XCTestCase {
         app.buttons["Edit"].tap()
         app.buttons["Card Style"].tap(); shot("06 Card style")
         app.buttons["Cancel"].tap()
+        app.navigationBars.buttons.firstMatch.tap()  // back to the stack (detail hides the tab bar)
+
+        app.swipeUp(); shot("06b Cards & passes")
+        app.buttons.matching(NSPredicate(format: "label CONTAINS 'Suki'")).firstMatch.tap()
+        shot("06c Pass detail")
+        app.navigationBars.buttons.firstMatch.tap()
+        app.buttons["Add"].firstMatch.tap()
+        if app.buttons["Add Card or Pass"].waitForExistence(timeout: 2) { app.buttons["Add Card or Pass"].tap() }
+        shot("06d New card")
+        app.buttons["Cancel"].tap()
 
         tab("Insights"); shot("07 Insights")
         app.swipeUp(); shot("08 Insights scrolled")

@@ -1,9 +1,13 @@
 import SwiftUI
 import PhotosUI
 
-/// Pick a card's texture, color or photo, and its emblem. `account == nil` edits the Home "All wallets" card.
+/// Pick a card's texture, color or photo, and its emblem. With no account or pass it edits the Home "All wallets" card.
 struct CardCustomizeView: View {
     let account: Account?
+    var pass: Pass?
+
+    init(account: Account?) { self.account = account }
+    init(pass: Pass) { self.account = nil; self.pass = pass }
 
     private enum Tab: String, CaseIterable { case textures = "Textures", colors = "Colors", photo = "Photo" }
 
@@ -36,7 +40,7 @@ struct CardCustomizeView: View {
                     VStack(spacing: 0) {
                         Toggle("Show balances on cards", isOn: $showBalance)
                             .padding(.horizontal, 16).frame(minHeight: 50)
-                        if account != nil {
+                        if account != nil || pass != nil {
                             Divider().padding(.leading, 16)
                             HStack {
                                 Text("Emblem")
@@ -66,11 +70,14 @@ struct CardCustomizeView: View {
         .presentationDragIndicator(.visible)
     }
 
-    private var tabs: [Tab] { account == nil ? [.textures, .colors] : Tab.allCases }
+    private var tabs: [Tab] { account == nil && pass == nil ? [.textures, .colors] : Tab.allCases }
 
     private var preview: some View {
         Group {
-            if let account {
+            if let pass {
+                PassCardView(title: pass.name, kind: pass.kind.label, number: pass.number, holder: pass.holder,
+                             emblem: emblem, skin: skin, photo: photo, hasCode: !pass.code.isEmpty && pass.codeFormat != .none)
+            } else if let account {
                 let base = WalletCardView(account: account)
                 WalletCardView(title: base.title, kind: base.kind, caption: base.caption, amount: base.amount, currency: base.currency,
                                emblem: emblem.isEmpty ? String(account.name.prefix(1)).uppercased() : emblem, skin: skin, photo: photo)
@@ -110,7 +117,7 @@ struct CardCustomizeView: View {
                     .frame(maxWidth: .infinity, minHeight: 50)
             }
             .buttonStyle(.glass)
-            Text("Photos stay on this iPhone. Your other devices show the wallet's color.")
+            Text(pass != nil ? "Tip: use a photo of the real card." : "Photos stay on this iPhone. Your other devices show the wallet's color.")
                 .font(.footnote).foregroundStyle(Color.muted).multilineTextAlignment(.center)
         }
     }
@@ -134,7 +141,11 @@ struct CardCustomizeView: View {
     }
 
     private func load() {
-        if let account {
+        if let pass {
+            skin = CardSkin(raw: pass.cardSkin, fallbackHex: pass.colorHex)
+            emblem = pass.cardEmblem
+            photo = pass.cardPhoto
+        } else if let account {
             skin = CardSkin(raw: account.cardSkin, fallbackHex: account.colorHex)
             emblem = account.cardEmblem
             photo = account.cardPhoto
@@ -155,7 +166,11 @@ struct CardCustomizeView: View {
     }
 
     private func save() {
-        if let account {
+        if let pass {
+            pass.cardSkin = skin.raw
+            pass.cardEmblem = emblem.trimmingCharacters(in: .whitespaces)
+            pass.cardPhoto = skin == .photo ? photo : nil
+        } else if let account {
             account.cardSkin = skin.raw
             account.cardEmblem = emblem.trimmingCharacters(in: .whitespaces)
             account.cardPhoto = skin == .photo ? photo : nil

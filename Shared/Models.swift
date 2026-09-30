@@ -257,3 +257,84 @@ final class RecurringTransaction {
         set { frequencyRaw = newValue.rawValue }
     }
 }
+
+// MARK: - Cards & passes (non-money cards). Local to this device; never synced.
+
+enum PassKind: String, CaseIterable, Identifiable {
+    case loyalty, membership, ticket, health, id, other
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .loyalty: "Loyalty"
+        case .membership: "Membership"
+        case .ticket: "Ticket"
+        case .health: "Health"
+        case .id: "ID"
+        case .other: "Card"
+        }
+    }
+
+    /// Starting look for a new pass of this kind.
+    var defaultSkin: String {
+        switch self {
+        case .loyalty: "ember"
+        case .membership: "midnight"
+        case .ticket: "jeepney"
+        case .health: "mint"
+        case .id: "ocean"
+        case .other: "linen"
+        }
+    }
+}
+
+enum CodeFormat: String, CaseIterable, Identifiable {
+    case qr, code128, pdf417, aztec, none
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .qr: "QR code"
+        case .code128: "Barcode"
+        case .pdf417: "PDF417"
+        case .aztec: "Aztec"
+        case .none: "No code"
+        }
+    }
+}
+
+@Model
+final class Pass {
+    var id: UUID = UUID()
+    var name: String = ""
+    var kindRaw: String = PassKind.loyalty.rawValue
+    /// Printed on the card, e.g. a member number.
+    var number: String = ""
+    var holder: String = ""
+    var notes: String = ""
+    /// What the QR/barcode encodes.
+    var code: String = ""
+    var codeFormatRaw: String = CodeFormat.qr.rawValue
+    var cardSkin: String = ""
+    var cardEmblem: String = ""
+    var colorHex: String = "8E8E93"
+    @Attribute(.externalStorage) var cardPhoto: Data?
+    var sortOrder: Int = 0
+    var createdAt: Date = Date()
+
+    init(name: String = "", kind: PassKind = .loyalty) {
+        self.name = name
+        self.kindRaw = kind.rawValue
+        self.cardSkin = kind.defaultSkin
+    }
+
+    var kind: PassKind {
+        get { PassKind(rawValue: kindRaw) ?? .other }
+        set { kindRaw = newValue.rawValue }
+    }
+
+    var codeFormat: CodeFormat {
+        get { CodeFormat(rawValue: codeFormatRaw) ?? .qr }
+        set { codeFormatRaw = newValue.rawValue }
+    }
+}

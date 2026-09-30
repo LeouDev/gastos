@@ -39,6 +39,13 @@ enum SampleData {
         ]
         items.forEach(context.insert)
 
+        let loyalty = Pass(name: "Suki Card", kind: .loyalty)
+        (loyalty.number, loyalty.holder, loyalty.code, loyalty.cardEmblem) = ("7788 1234 5566", "Juan Dela Cruz", "SUKI-7788123455660", "SUKI")
+        let vaccine = Pass(name: "Vaccination Card", kind: .health)
+        (vaccine.holder, vaccine.codeFormat, vaccine.code) = ("Juan Dela Cruz", .pdf417, "VAX|DELA CRUZ, JUAN|DOSE 3")
+        context.insert(loyalty)
+        context.insert(vaccine)
+
         context.insert(Budget(amount: 10_000, category: category("Food")!))
         context.insert(Budget(amount: 15_000, category: category("Bills")!))
 

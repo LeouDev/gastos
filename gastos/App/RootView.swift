@@ -20,7 +20,7 @@ struct RootView: View {
             Tab("Wallets", systemImage: "wallet.bifold.fill", value: AppTab.wallets) { WalletsView() }
             Tab("Insights", systemImage: "chart.bar.fill", value: AppTab.insights) { InsightsView() }
         }
-        .tabViewBottomAccessory { SafeToSpendAccessory() }
+        .modifier(SafeToSpendStrip(hidden: TabChrome.shared.hidesAccessory))
         .environment(\.addEntry, AddEntryAction { addRequest = $0 })
         .sheet(item: $addRequest) { request in
             AddEntryView(initialType: request.type, account: request.account, toAccount: request.toAccount)
@@ -32,6 +32,24 @@ struct RootView: View {
     private func open(_ url: URL) {
         guard url.scheme == "gastos", url.host() == "add" else { return }
         addRequest = AddRequest(type: EntryType(rawValue: url.lastPathComponent))
+    }
+}
+
+/// Screens that show the card pile hide the strip above the tab bar, like Apple Wallet.
+@Observable final class TabChrome {
+    static let shared = TabChrome()
+    var hidesAccessory = false
+}
+
+private struct SafeToSpendStrip: ViewModifier {
+    let hidden: Bool
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.1, *) {
+            content.tabViewBottomAccessory(isEnabled: !hidden) { SafeToSpendAccessory() }
+        } else {
+            content.tabViewBottomAccessory { SafeToSpendAccessory() }
+        }
     }
 }
 

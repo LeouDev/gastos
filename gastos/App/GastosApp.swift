@@ -16,11 +16,16 @@ struct GastosApp: App {
             return container
         }
         #endif
-        do {
-            return try Store.container()
-        } catch {
-            fatalError("Could not open the gastos store: \(error)")
+        // Another process (the widget, mid-update) can briefly hold the store with an older schema.
+        // Retry before giving up; never delete the store, that would lose the user's money records.
+        var lastError: Error?
+        for attempt in 0..<3 {
+            do { return try Store.container() } catch {
+                lastError = error
+                Thread.sleep(forTimeInterval: 0.4 * Double(attempt + 1))
+            }
         }
+        fatalError("Could not open the gastos store: \(String(describing: lastError))")
     }()
 
     var body: some Scene {

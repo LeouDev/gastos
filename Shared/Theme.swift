@@ -28,7 +28,7 @@ enum SettingsKey {
 }
 
 enum Store {
-    static let schema = Schema([Account.self, Entry.self, Category.self, Budget.self, RecurringTransaction.self])
+    static let schema = Schema([Account.self, Entry.self, Category.self, Budget.self, RecurringTransaction.self, Pass.self])
 
     /// The app's store lives in the app group so the widget can read it. Syncing is done by
     /// SyncService (Supabase), never by CloudKit.

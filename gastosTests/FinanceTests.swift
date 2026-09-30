@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import Testing
+import Vision
 @testable import gastos
 
 @MainActor
@@ -469,5 +470,27 @@ struct CardSkinTests {
         #expect(CardSkin.isLight("F4B400"))
         #expect(!CardSkin.isLight("D8141A"))
         #expect(!CardSkin.isLight("1C1A19"))
+    }
+}
+
+struct PassCodeTests {
+    @Test func everyFormatRendersAndCode128RejectsNonASCII() {
+        for format in [CodeFormat.qr, .code128, .pdf417, .aztec] {
+            #expect(CodeRenderer.image(for: "SUKI-7788123455660", format: format) != nil, "\(format)")
+        }
+        #expect(CodeRenderer.image(for: "Piña", format: .code128) == nil)
+        #expect(CodeRenderer.image(for: "Piña", format: .qr) != nil)
+        #expect(CodeRenderer.image(for: "", format: .qr) == nil)
+        #expect(CodeRenderer.image(for: "123", format: .none) == nil)
+    }
+
+    @Test func aRenderedQRCodeScansBackToTheSamePayload() throws {
+        let payload = "https://gastos.app/member/7788123455660"
+        let image = try #require(CodeRenderer.image(for: payload, format: .qr)?.cgImage)
+        // The Simulator can't run Vision's detector ("Could not create inference context"); on a device it does.
+        do { try VNImageRequestHandler(cgImage: image).perform([VNDetectBarcodesRequest()]) } catch { return }
+        let found = try #require(BarcodeScanner.detect(in: image))
+        #expect(found.0 == payload)
+        #expect(found.1 == .qr)
     }
 }
