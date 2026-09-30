@@ -276,14 +276,20 @@ struct EmptyStateView: View {
 /// The gastos sphere with a soft grounded shadow.
 struct LogoSphere: View {
     var size: CGFloat
+    var rotation: Angle = .zero
+    /// 0…1; fades the shadows while the sphere is in the air.
+    var grounded: Double = 1
 
     var body: some View {
         Image("Logo")
             .resizable()
             .scaledToFit()
             .frame(width: size, height: size)
-            .shadow(color: .black.opacity(0.08), radius: size * 0.06, y: size * 0.05)
-            .shadow(color: Color.brand.opacity(0.12), radius: size * 0.12, y: size * 0.1)
+            // Logo.png has a thin light rim outside the sphere; trim it so it never shows.
+            .clipShape(Circle().inset(by: size * 0.022))
+            .rotationEffect(rotation)
+            .shadow(color: .black.opacity(0.08 * grounded), radius: size * 0.06, y: size * 0.05)
+            .shadow(color: Color.brand.opacity(0.12 * grounded), radius: size * 0.12, y: size * 0.1)
             .accessibilityHidden(true)
     }
 }

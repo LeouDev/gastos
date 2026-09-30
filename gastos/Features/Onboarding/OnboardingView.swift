@@ -24,44 +24,85 @@ struct OnboardingView: View {
     @AppStorage(SettingsKey.currency) private var currency = "PHP"
     @State private var page = 0
     @State private var picked: [String: String] = [:]  // name → balance text
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// The roll-in plays once; state lives here so swiping back to the welcome page doesn't replay it.
+    @State private var introStart: Date?
+    @State private var introFinished = false
+    @State private var reducedShown = false
 
     var body: some View {
-        VStack {
-            TabView(selection: $page) {
-                welcome.tag(0)
-                wallets.tag(1)
-                ready.tag(2)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
+        TimelineView(.animation(paused: introFinished)) { context in
+            let t = introTime(at: context.date)
+            let button = page == 0 ? IntroMotion.button(at: t) : IntroMotion.Rise()
+            VStack {
+                TabView(selection: $page) {
+                    welcome(t: t).tag(0)
+                    wallets.tag(1)
+                    ready.tag(2)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
 
-            Button(page == 2 ? "Start" : "Continue") {
-                if page == 2 { finish() } else { withAnimation { page += 1 } }
-            }
-            .buttonStyle(PrimaryButtonStyle())
-            .padding(.horizontal, 24)
-            .padding(.bottom, 8)
+                Button(page == 2 ? "Start" : "Continue") {
+                    if page == 2 { finish() } else { withAnimation { page += 1 } }
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .padding(.horizontal, 24)
+                .padding(.bottom, 8)
+                .opacity(button.opacity)
+                .offset(y: button.y)
+                .disabled(t < IntroMotion.interactiveAt)
 
             Button(page == 1 ? "Skip for now" : " ") { withAnimation { page = 2 } }
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Color.muted)
                 .disabled(page != 1)
                 .padding(.bottom, 12)
+            }
+            .opacity(reduceMotion && !reducedShown ? 0 : 1)
+            .sensoryFeedback(.impact(weight: .light), trigger: t >= IntroMotion.landing)
         }
         .background(Color.canvas.ignoresSafeArea())
         .scrollDismissesKeyboard(.interactively)
+        .task { await playIntro() }
     }
 
-    private var welcome: some View {
-        VStack(spacing: 24) {
+    private func introTime(at date: Date) -> Double {
+        guard !introFinished, !reduceMotion, let introStart else { return introStart == nil && !reduceMotion ? 0 : IntroMotion.duration }
+        return date.timeIntervalSince(introStart)
+    }
+
+    private func playIntro() async {
+        guard introStart == nil else { return }
+        if reduceMotion {
+            // No drop or roll: everything simply fades in.
+            introFinished = true
+            withAnimation(.easeOut(duration: 0.3)) { reducedShown = true }
+            return
+        }
+        introStart = .now
+        try? await Task.sleep(for: .seconds(IntroMotion.duration))
+        introFinished = true
+    }
+
+    private func welcome(t: Double) -> some View {
+        let ball = IntroMotion.ball(at: t)
+        let word = IntroMotion.wordmark(at: t)
+        let tag = IntroMotion.tagline(at: t)
+        return VStack(spacing: 24) {
             Spacer()
-            LogoSphere(size: 220)
+            RollingSphere(ball: ball)
                 .padding(.bottom, 12)
             Text("gastos")
                 .font(.system(size: 48, weight: .heavy, design: .rounded))
                 .foregroundStyle(Color.brand)
+                .opacity(word.opacity)
+                .scaleEffect(word.scale)
+                .offset(y: word.y)
             Text("Know where your money goes.")
                 .font(.title3.weight(.medium))
                 .foregroundStyle(Color.ink)
+                .opacity(tag.opacity)
+                .offset(y: tag.y)
             Spacer()
         }
         .padding(24)
@@ -141,5 +182,31 @@ struct OnboardingView: View {
         }
         Haptics.success()
         withAnimation { hasOnboarded = true }
+    }
+}
+
+/// The logo sphere at one frame of the roll-in, with its floor shadow.
+private struct RollingSphere: View {
+    let ball: IntroMotion.Ball
+    private let size = IntroMotion.size
+
+    var body: some View {
+        let height = -ball.y
+        let shadowScale = min(max(1 - height / 700, 0.35), 1)
+        ZStack {
+            // Contact shadow stays on the floor: follows x, never y.
+            Ellipse()
+                .fill(Color(rgb: 0x1C1A19).opacity(0.22))
+                .frame(width: 170, height: 26)
+                .blur(radius: 9)
+                .scaleEffect(x: shadowScale * (1 + (ball.scaleX - 1) * 0.8), y: shadowScale)
+                .opacity(0.25 + 0.75 * shadowScale * (1 - 0.55 * ball.grounded))
+                .offset(x: ball.x, y: size / 2 - 1)
+            LogoSphere(size: size, rotation: .degrees(ball.rotation), grounded: ball.grounded)
+                .scaleEffect(x: ball.scaleX, y: ball.scaleY, anchor: .bottom)
+                .offset(x: ball.x, y: ball.y)
+        }
+        .frame(width: size, height: size)
+        .accessibilityLabel("gastos logo")
     }
 }

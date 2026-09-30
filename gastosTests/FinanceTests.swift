@@ -322,3 +322,42 @@ struct FinanceTests {
         #expect(Finance.upcomingExpenses([weekly, salary], through: end, currency: "PHP") == 600)
     }
 }
+
+struct IntroMotionTests {
+    @Test func ballStartsOffScreenAndEndsUprightAtRest() {
+        let start = IntroMotion.ball(at: 0)
+        #expect(start.x == -430 && start.y == -760)
+        #expect(abs(start.rotation - (-430.0 / 110 * 180 / .pi)) < 0.001)  // ≈ −224°
+
+        let rest = IntroMotion.ball(at: IntroMotion.duration)
+        #expect(rest == IntroMotion.Ball())
+        #expect(rest.grounded == 1)
+    }
+
+    @Test func ballLandsThenHopsThreeTimes() {
+        #expect(IntroMotion.ball(at: 0.6).y == 0)
+        #expect(abs(IntroMotion.ball(at: 0.6 + 0.21).y - -105.6) < 0.001)   // hop 1 peak, 96 × 1.1
+        #expect(abs(IntroMotion.ball(at: 1.02 + 0.13).y - -33) < 0.001)     // hop 2 peak
+        #expect(abs(IntroMotion.ball(at: 1.28 + 0.08).y - -9.9) < 0.001)    // hop 3 peak
+        #expect(IntroMotion.ball(at: 1.5).y == 0)
+    }
+
+    @Test func ballSquashesOnImpactAndOvershootsBeforeSettling() {
+        let impact = IntroMotion.ball(at: 0.6 + 0.08)  // mid-squash
+        #expect(abs(impact.scaleX - 1.18) < 0.001 && abs(impact.scaleY - 0.82) < 0.001)
+        #expect(abs(IntroMotion.ball(at: 2.15).x - 18) < 0.001)
+        #expect(IntroMotion.ball(at: 2.65).x == 0)
+    }
+
+    @Test func revealOrderAndButtonUnlock() {
+        func near(_ a: IntroMotion.Rise, _ b: IntroMotion.Rise) -> Bool {
+            abs(a.opacity - b.opacity) < 1e-9 && abs(a.y - b.y) < 1e-9 && abs(a.scale - b.scale) < 1e-9
+        }
+        #expect(IntroMotion.wordmark(at: 3.0).opacity < 1e-9)
+        #expect(near(IntroMotion.wordmark(at: 3.6), IntroMotion.Rise()))
+        #expect(IntroMotion.tagline(at: 3.28).opacity < 1e-9)
+        #expect(IntroMotion.button(at: 3.55).opacity < 1e-9)
+        #expect(near(IntroMotion.button(at: 4.15), IntroMotion.Rise()))
+        #expect(abs(IntroMotion.interactiveAt - 4.15) < 1e-9)
+    }
+}

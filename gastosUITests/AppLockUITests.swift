@@ -9,6 +9,7 @@ final class AppLockUITests: XCTestCase {
         app.launchArguments = ["-uiTesting"]
         app.launch()
 
+        waitForIntro(app)
         app.buttons["Continue"].tap()
         app.buttons["Cash"].tap()
         app.buttons["Continue"].tap()

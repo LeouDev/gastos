@@ -72,6 +72,7 @@ final class AddFlowUITests: XCTestCase {
     // MARK: - Helpers
 
     private func onboard(wallets: [String: String]) {
+        waitForIntro(app)
         app.buttons["Continue"].tap()
         for (name, balance) in wallets {
             app.buttons[name].tap()
@@ -89,4 +90,10 @@ final class AddFlowUITests: XCTestCase {
         let format = parts.map { _ in "label CONTAINS %@" }.joined(separator: " AND ")
         return app.descendants(matching: .any).matching(NSPredicate(format: format, argumentArray: parts)).firstMatch
     }
+}
+
+/// Continue stays disabled until the welcome roll-in finishes (~4.2 s).
+func waitForIntro(_ app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
+    let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: app.buttons["Continue"])
+    XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 10), .completed, "Continue never enabled", file: file, line: line)
 }
