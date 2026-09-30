@@ -40,4 +40,4 @@ If this policy changes, we'll update this page and the date above.
 
 ## Contact
 
-Questions or requests: open an issue at <https://github.com/LeouDev/gastos/issues>.
+Questions or requests about your data: <gasto@air-rally.com>. This policy is also published at the gastos website under /privacy.
